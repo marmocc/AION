@@ -33,21 +33,65 @@ storage:
       mode: 0644
       contents:
         inline: ""
-  
+
+    # Configure the Internet connection
+    - path: /etc/NetworkManager/system-connections/external.nmconnection
+      mode: 0600
+      overwrite: true
+      contents:
+        inline: |
+          [connection]
+          id=external
+          type=ethernet
+          interface-name=enp2s0
+
+          [ipv4]
+          method=manual
+          addresses=192.168.1.100/24
+          gateway=192.168.1.254
+          dns=192.168.1.254
+
+          [ipv6]
+          method=disabled
+
+    # Configure the internal connection
+    - path: /etc/NetworkManager/system-connections/internal.nmconnection
+      mode: 0600
+      overwrite: true
+      contents:
+        inline: |
+          [connection]
+          id=internal
+          type=ethernet
+          interface-name=enp3s0
+
+          [ipv4]
+          method=manual
+          addresses=10.0.0.1/30
+
+          [ipv6]
+          method=disabled
+
   directories:
     # Prepare permissions for tree
     - path: /var/home/services
       mode: 0755
       user: { name: services }
       group: { name: services }
+    - path: /var/home/services/.config
+      mode: 0755
+      user: { name: services }
+      group: { name: services }
+    - path: /var/home/services/.config/containers
+      mode: 0755
+      user: { name: services }
+      group: { name: services }
+    - path: /var/home/services/.config/containers/systemd
+      mode: 0755
+      user: { name: services }
+      group: { name: services }
 
   trees:
-    # Configure networks
-    - local: networks
-      path: /etc/NetworkManager/system-connections
-      mode: 0600
     # Configure containers
     - local: quadlets
       path: /var/home/services/.config/containers/systemd
-      user: { name: services }
-      group: { name: services }
