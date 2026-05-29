@@ -16,12 +16,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build ISO
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Pull latest image
         run: |
-          # Pull the image you just pushed
           sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          
-          # Create the ISO using the builder and your kickstart
+
+      - name: Build ISO from image
+        run: |
+          mkdir -p output
           sudo podman run --rm --privileged \
             -v ./output:/output \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
