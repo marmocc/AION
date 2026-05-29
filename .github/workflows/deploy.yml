@@ -33,9 +33,10 @@ jobs:
           sudo podman run --rm --privileged \
             -v ./output:/output \
             -v /var/lib/containers/storage:/var/lib/containers/storage \
+            -v ./installer.toml:/installer.toml:ro \
             quay.io/centos-bootc/bootc-image-builder:latest \
+            --config installer.toml \
             --type iso \
-            --ks kickstart.ks \
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Upload ISO
