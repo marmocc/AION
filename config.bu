@@ -8,17 +8,17 @@ passwd:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/nWAS+nfgwj13kIfeIQq3UW1Bp6vrbeOCIi8dHkOU marmocc@marmo.cc"
 
 storage:
+  links:
+    - path: /etc/localtime
+      target: ../usr/share/zoneinfo/Europe/Rome
+      overwrite: true
+
   files:
     - path: /etc/hostname
       mode: 0644
       overwrite: true
       contents:
         inline: AION
-
-    - path: /etc/localtime
-      mode: 0644
-      overwrite: true
-      target: ../usr/share/zoneinfo/Europe/Rome
 
     - path: /etc/NetworkManager/system-connections/direct.nmconnection
       mode: 0600
