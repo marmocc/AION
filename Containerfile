@@ -12,7 +12,7 @@ RUN useradd -m -s /sbin/nologin podman && \
     mkdir -p /var/lib/systemd/linger && \
     touch /var/lib/systemd/linger/podman
 
-RUN rpm-ostree install cockpit pcp cockpit-podman && \
+RUN rpm-ostree install nano pcp cockpit cockpit-podman cockpit-storaged && \
     rpm-ostree cleanup -m
 
 COPY etc/NetworkManager/system-connections/ /etc/NetworkManager/system-connections/

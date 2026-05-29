@@ -8,7 +8,7 @@ on:
     - cron: '0 0 * * 1'
 
 env:
-  IMAGE_NAME: aion
+  IMAGE_NAME: AION
   IMAGE_REGISTRY: ghcr.io/marmocc
 
 jobs:
