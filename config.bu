@@ -38,8 +38,8 @@ storage:
     # Prepare permissions for tree
     - path: /var/home/services
       mode: 0755
-      user: services
-      group: services
+      user: { name: services }
+      group: { name: services }
 
   trees:
     # Configure networks
@@ -49,5 +49,5 @@ storage:
     # Configure containers
     - local: quadlets
       path: /var/home/services/.config/containers/systemd
-      user: services
-      group: services
+      user: { name: services }
+      group: { name: services }
