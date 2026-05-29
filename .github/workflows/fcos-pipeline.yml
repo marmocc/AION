@@ -68,6 +68,7 @@ jobs:
             iso customize \
             --dest-device ${{ github.event.inputs.dest_device }} \
             --dest-ignition config.ign \
+            --offline \
             fcos-base.iso \
             -o fcos-unattended.iso
           sudo chown $(id -u):$(id -g) fcos-unattended.iso
