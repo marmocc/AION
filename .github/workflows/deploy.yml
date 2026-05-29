@@ -35,7 +35,7 @@ jobs:
             -v /var/lib/containers/storage:/var/lib/containers/storage \
             -v ./installer.toml:/installer.toml:ro \
             quay.io/centos-bootc/bootc-image-builder:latest \
-            --config installer.toml \
+            --config /installer.toml \
             --type iso \
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
