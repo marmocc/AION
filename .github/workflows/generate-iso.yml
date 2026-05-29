@@ -20,7 +20,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: compile-ignition.yml
-          name: compiled-ignition-json
+          name: compiled-ignition
           path: .
           check_artifacts: true
           search_artifacts: true
@@ -39,7 +39,7 @@ jobs:
             -v ${{ github.workspace }}:/data -w /data \
             quay.io/coreos/coreos-installer:release \
             download -s stable -p metal -f iso
-          mv fedora-coreos-*.noarch.iso fcos-base.iso
+          mv fedora-coreos-*.iso fcos-base.iso
 
       - name: Embed Ignition into Base
         run: |
@@ -50,11 +50,11 @@ jobs:
             --dest-device ${{ github.event.inputs.dest_device }} \
             --dest-ignition config.ign \
             fcos-base.iso \
-            -o fcos-unattended-installer.iso
+            -o fcos-unattended.iso
 
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fcos-usb-installer-image
-          path: fcos-unattended-installer.iso
+          name: fcos-unattended-image
+          path: fcos-unattended.iso
           retention-days: 3
