@@ -16,10 +16,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download Latest Compiled Ignition
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v6
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: compile-ignition.yml
           name: compiled-ignition-json
           path: .
+          check_artifacts: true
+          search_artifacts: true
+
 
       - name: Verify Ignition File Presence
         run: |
