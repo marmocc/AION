@@ -1,6 +1,9 @@
-name: "Generate ISO"
+name: "Fedora CoreOS Pipeline"
 
 on:
+  push:
+    branches: [ "master" ]
+    paths: [ "config.bu" ]
   workflow_dispatch:
     inputs:
       dest_device:
@@ -9,22 +12,38 @@ on:
         default: "/dev/disk/by-id/ata-TS120GSSD220S_G290265953"
 
 jobs:
-  generate-iso:
+  compile-ignition:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download Latest Compiled Ignition
-        uses: dawidd6/action-download-artifact@v6
+      - name: Transpile Butane to Ignition
+        run: |
+          docker run --interactive --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/butane:release \
+            --pretty --strict config.bu > config.ign
+
+      - name: Upload Ignition Artifact
+        uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: compile-ignition.yml
+          name: compiled-ignition
+          path: config.ign
+          retention-days: 90
+  generate-iso:
+    runs-on: ubuntu-latest
+    needs: compile-ignition
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Latest Compiled Ignition
+        uses: actions/download-artifact@v4
+        with:
           name: compiled-ignition
           path: .
-          check_artifacts: true
-          search_artifacts: true
-
 
       - name: Verify Ignition File Presence
         run: |
