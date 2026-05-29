@@ -1,0 +1,6 @@
+[Unit]
+Description=Isolated Container Network
+
+[Network]
+NetworkName=aion-bridge
+Driver=bridge
