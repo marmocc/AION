@@ -1,15 +1,13 @@
-name: "Fedora CoreOS Pipeline"
+name: "Compile Ignition and Generate ISO"
 
 on:
   push:
     branches: [ "master" ]
     paths: [ "config.bu" ]
   workflow_dispatch:
-    inputs:
-      dest_device:
-        description: "Path of the disk to install CoreOS on"
-        required: true
-        default: "/dev/disk/by-id/ata-TS120GSSD220S_G290265953"
+
+env:
+  TARGET_DISK: "/dev/disk/by-id/ata-TS120GSSD220S_G290265953"
 
 jobs:
   compile-ignition:
@@ -23,7 +21,9 @@ jobs:
           docker run --interactive --rm \
             -v ${{ github.workspace }}:/data -w /data \
             quay.io/coreos/butane:release \
-            --pretty --strict config.bu > config.ign
+            --pretty --strict \
+            --files-dir /data \
+            config.bu > config.ign
 
       - name: Upload Ignition Artifact
         uses: actions/upload-artifact@v4
@@ -66,7 +66,7 @@ jobs:
             -v ${{ github.workspace }}:/data -w /data \
             quay.io/coreos/coreos-installer:release \
             iso customize \
-            --dest-device ${{ github.event.inputs.dest_device }} \
+            --dest-device "${{ env.TARGET_DISK }}" \
             --dest-ignition config.ign \
             --offline \
             fcos-base.iso \
