@@ -9,7 +9,7 @@ on:
         default: "/dev/disk/by-id/ata-TS120GSSD220S_G290265953"
 
 jobs:
-  build-iso:
+  generate-iso:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
