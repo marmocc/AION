@@ -1,0 +1,38 @@
+name: Deploy AION
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: aion
+  IMAGE_REGISTRY: ghcr.io/marmocc
+
+jobs:
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build ISO
+        run: |
+          # Pull the image you just pushed
+          sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          
+          # Create the ISO using the builder and your kickstart
+          sudo podman run --rm --privileged \
+            -v ./output:/output \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type iso \
+            --ks kickstart.ks \
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: aion
+          path: output/*.iso

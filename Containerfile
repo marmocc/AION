@@ -8,8 +8,8 @@ RUN dnf -y install nano cockpit cockpit-podman cockpit-storaged pcp && \
 RUN useradd -m -G wheel marmocc && \
     passwd -l marmocc
     
-    # Configure service user (services)
-    RUN useradd -m -s /sbin/nologin services && \
+# Configure service user (services)
+RUN useradd -m -s /sbin/nologin services && \
     mkdir -p /var/lib/systemd/linger && \
     touch /var/lib/systemd/linger/services
 
