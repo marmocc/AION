@@ -1,9 +1,0 @@
-[customizations.installer.kickstart]
-contents = """
-text --non-interactive
-eula --agreed
-timezone --utc Europe/Rome
-clearpart --drives=/dev/disk/by-id/ata-TS120GSSD220S_G290265953 --all --initlabel --disklabel=gpt
-autopart --drives=/dev/disk/by-id/ata-TS120GSSD220S_G290265953 --type=plain
-reboot
-"""

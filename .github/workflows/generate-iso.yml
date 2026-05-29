@@ -1,0 +1,55 @@
+name: "Generate ISO"
+
+on:
+  workflow_dispatch:
+    inputs:
+      dest_device:
+        description: "Path of the disk to install CoreOS on"
+        required: true
+        default: "/dev/disk/by-id/ata-TS120GSSD220S_G290265953"
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Latest Compiled Ignition
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-ignition-json
+          path: .
+
+      - name: Verify Ignition File Presence
+        run: |
+          if [ ! -f "config.ign" ]; then
+            echo "Error: config.ign not found. Run the Ignition compiler workflow first!"
+            exit 1
+          fi
+
+      - name: Fetch Fedora CoreOS Base
+        run: |
+          docker run --privileged --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/coreos-installer:release \
+            download -s stable -p metal -f iso
+          mv fedora-coreos-*.noarch.iso fcos-base.iso
+
+      - name: Embed Ignition into Base
+        run: |
+          docker run --privileged --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/coreos-installer:release \
+            iso customize \
+            --dest-device ${{ github.event.inputs.dest_device }} \
+            --dest-ignition config.ign \
+            fcos-base.iso \
+            -o fcos-unattended-installer.iso
+
+      - name: Upload ISO Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fcos-usb-installer-image
+          path: fcos-unattended-installer.iso
+          retention-days: 3

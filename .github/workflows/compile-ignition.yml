@@ -1,0 +1,28 @@
+name: "Compile Ignition"
+
+on:
+  push:
+    branches: [ "master" ]
+    paths: [ "config.bu" ]
+  workflow_dispatch:
+
+jobs:
+  build-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Transpile Butane to Ignition
+        run: |
+          docker run --interactive --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/butane:release \
+            --pretty --strict config.bu > config.ign
+
+      - name: Upload Ignition Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-ignition-json
+          path: config.ign
+          retention-days: 90
