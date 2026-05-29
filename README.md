@@ -1,2 +1,2 @@
 # AION
-Personal homelab server image
+Fedora CoreOS Butane configuration for personal homelab server.
