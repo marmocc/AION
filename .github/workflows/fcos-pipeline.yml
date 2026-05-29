@@ -70,6 +70,7 @@ jobs:
             --dest-ignition config.ign \
             fcos-base.iso \
             -o fcos-unattended.iso
+          sudo chown $(id -u):$(id -g) fcos-unattended.iso
 
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
