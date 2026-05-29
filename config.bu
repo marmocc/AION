@@ -9,6 +9,17 @@ passwd:
 
 storage:
   files:
+    - path: /etc/hostname
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: AION
+
+    - path: /etc/localtime
+      mode: 0644
+      overwrite: true
+      target: ../usr/share/zoneinfo/Europe/Rome
+
     - path: /etc/NetworkManager/system-connections/direct.nmconnection
       mode: 0600
       overwrite: true
