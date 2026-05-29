@@ -36,6 +36,7 @@ jobs:
             -v ./installer.toml:/installer.toml:ro \
             quay.io/centos-bootc/bootc-image-builder:latest \
             --config /installer.toml \
+            --rootfs xfs \
             --type iso \
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
