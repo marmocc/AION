@@ -69,8 +69,8 @@ jobs:
             --dest-device "${{ env.TARGET_DISK }}" \
             --dest-ignition config.ign \
             fcos-base.iso \
-            -o fcos-unattended.iso
-          sudo chown $(id -u):$(id -g) fcos-unattended.iso
+            -o image.iso
+          sudo chown $(id -u):$(id -g) image.iso
 
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v7
