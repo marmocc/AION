@@ -5,7 +5,6 @@ passwd:
     # Create services user for rootless containers
     - name: services
       shell: /usr/sbin/nologin
-      system: true
 
     # Create administrator user
     - name: marmocc
