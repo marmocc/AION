@@ -28,8 +28,8 @@ jobs:
       - name: Upload Ignition Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-ignition
           path: config.ign
+          archive: false
           retention-days: 90
   generate-iso:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
       - name: Download Latest Compiled Ignition
         uses: actions/download-artifact@v4
         with:
-          name: compiled-ignition
+          name: config.ign
           path: .
 
       - name: Verify Ignition File Presence
@@ -75,6 +75,6 @@ jobs:
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deployable-image
-          path: fcos-unattended.iso
+          path: image.iso
+          archive: false
           retention-days: 3
