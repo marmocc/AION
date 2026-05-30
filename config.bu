@@ -4,7 +4,6 @@ passwd:
   users:
     # Create services user for rootless containers
     - name: services
-      system: true
       shell: /usr/sbin/nologin
 
     # Create administrator user
@@ -54,7 +53,7 @@ storage:
           [ipv6]
           method=disabled
 
-    # Configure the internal connection
+    # Configure the direct connection
     - path: /etc/NetworkManager/system-connections/internal.nmconnection
       mode: 0600
       overwrite: true
