@@ -130,7 +130,7 @@ systemd:
         [Mount]
         What=/dev/disk/by-label/ARCHIVE
         Where=/mnt/archive
-        Type=btrfs
+        Type=ext4
         Options=defaults
 
         [Install]
