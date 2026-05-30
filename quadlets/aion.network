@@ -4,3 +4,6 @@ Description=Isolated Container Network
 [Network]
 NetworkName=aion-bridge
 Driver=bridge
+
+[Install]
+WantedBy=multi-user.target

@@ -5,6 +5,7 @@ passwd:
     # Create services user for rootless containers
     - name: services
       shell: /usr/sbin/nologin
+      system: true
 
     # Create administrator user
     - name: marmocc
@@ -72,6 +73,11 @@ storage:
           method=disabled
 
   directories:
+    # Prepare permissions for mount
+    - path: /mnt/active
+      mode: 0755
+    - path: /mnt/archive
+      mode: 0755
     # Prepare permissions for tree
     - path: /var/home/services
       mode: 0755
@@ -94,3 +100,39 @@ storage:
     # Configure containers
     - local: quadlets
       path: /var/home/services/.config/containers/systemd
+
+systemd:
+  units:
+    # Mount ACTIVE
+    - name: mnt-active.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Mount ACTIVE
+        After=local-fs.target
+
+        [Mount]
+        What=/dev/disk/by-label/ACTIVE
+        Where=/mnt/active
+        Type=ext4
+        Options=defaults
+
+        [Install]
+        WantedBy=multi-user.target
+
+    # Mount ARCHIVE
+    - name: mnt-archive.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Mount ARCHIVE
+        After=local-fs.target
+
+        [Mount]
+        What=/dev/disk/by-label/ARCHIVE
+        Where=/mnt/archive
+        Type=btrfs
+        Options=defaults
+
+        [Install]
+        WantedBy=multi-user.target

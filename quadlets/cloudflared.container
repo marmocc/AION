@@ -1,6 +1,7 @@
 [Unit]
 Description=Cloudflare Tunnel
-After=network-online.target
+After=network-online.target aion-network.service
+Requires=aion-network.service
 
 [Container]
 Image=docker.io/cloudflare/cloudflared:latest

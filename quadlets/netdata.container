@@ -1,0 +1,26 @@
+[Unit]
+Description=Netdata
+After=network-online.target aion-network.service mnt-active.mount
+Requires=aion-network.service mnt-active.mount
+
+[Container]
+Image=docker.io/netdata/netdata:latest
+ContainerName=netdata
+Network=aion.network
+
+Volume=/etc/passwd:/host/etc/passwd:ro
+Volume=/etc/group:/host/etc/group:ro
+Volume=/proc:/host/proc:ro
+Volume=/sys:/host/sys:ro
+Volume=/etc/os-release:/host/etc/os-release:ro
+
+Volume=/mnt/active/netdata/config:/etc/netdata:Z
+Volume=/mnt/active/netdata/lib:/var/lib/netdata:Z
+Volume=/mnt/active/netdata/cache:/var/cache/netdata:Z
+
+AddCapability=SYS_PTRACE
+AddCapability=SYS_ADMIN
+SecurityLabelDisable=true
+
+[Service]
+Restart=always
