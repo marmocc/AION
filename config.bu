@@ -91,8 +91,8 @@ storage:
         inline: |
           [Unit]
           Description=Cloudflare Tunnel
-          After=network-online.target services-network.service
-          Requires=services-network.service
+          After=network-online.target services-network.service fix-active-ownership.service
+          Requires=services-network.service fix-active-ownership.service
 
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
@@ -116,8 +116,8 @@ storage:
         inline: |
           [Unit]
           Description=Beszel Hub
-          After=network-online.target var-mnt-active.mount services-network.service
-          Requires=var-mnt-active.mount services-network.service
+          After=network-online.target services-network.service fix-active-ownership.service
+          Requires=services-network.service fix-active-ownership.service
 
           [Container]
           Image=docker.io/henrygd/beszel:latest
@@ -139,8 +139,8 @@ storage:
         inline: |
           [Unit]
           Description=Beszel Agent
-          After=network-online.target var-mnt-active.mount enable-core-podman-socket.service
-          Requires=var-mnt-active.mount enable-core-podman-socket.service
+          After=network-online.target enable-core-podman-socket.service fix-active-ownership.service
+          Requires=enable-core-podman-socket.service fix-active-ownership.service
 
           [Container]
           Image=docker.io/henrygd/beszel-agent:alpine
