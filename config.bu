@@ -2,23 +2,27 @@ variant: fcos
 version: 1.6.0
 passwd:
   users:
-    # Create services user for rootless containers
-    - name: services
-      shell: /usr/sbin/nologin
-
-    # Create administrator user
-    - name: marmocc
-      groups: [ sudo, wheel ]
+    # Set SSH key for default core user
+    - name: core
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/nWAS+nfgwj13kIfeIQq3UW1Bp6vrbeOCIi8dHkOU marmocc@marmo.cc"
-
 storage:
+  directories:
+    # Prepare permissions for mount
+    - path: /var/mnt/active
+      mode: 0755
+    - path: /var/mnt/archive
+      mode: 0755
+    # Prepare for container files
+    - path: /var/home/core/.config/containers/systemd
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
   links:
     # Set the local timezone
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Rome
       overwrite: true
-
   files:
     # Set the hostname
     - path: /etc/hostname
@@ -26,72 +30,111 @@ storage:
       overwrite: true
       contents:
         inline: AION
-
-    # Enable linger for services user
-    - path: /var/lib/systemd/linger/services
+    # Make core user linger
+    - path: /var/lib/systemd/linger/core
       mode: 0644
       contents:
         inline: ""
+    # Initialize example secrets file
+    - path: /var/home/core/.config/containers/systemd/secrets.env.example
+      mode: 0600
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          TUNNEL_TOKEN=
+    # Configure container for Cloudflare Tunnel
+    - path: /var/home/core/.config/containers/systemd/cloudflared.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Cloudflare Tunnel
+          After=network-online.target
+          ConditionPathExists=/var/home/core/.config/containers/systemd/secrets.env
 
-  directories:
-    # Prepare permissions for mount
-    - path: /mnt/active
-      mode: 0755
-    - path: /mnt/archive
-      mode: 0755
-    # Prepare permissions for tree
-    - path: /var/home/services
-      mode: 0755
-      user: { name: services }
-      group: { name: services }
-    - path: /var/home/services/.config
-      mode: 0755
-      user: { name: services }
-      group: { name: services }
-    - path: /var/home/services/.config/containers
-      mode: 0755
-      user: { name: services }
-      group: { name: services }
-    - path: /var/home/services/.config/containers/systemd
-      mode: 0755
-      user: { name: services }
-      group: { name: services }
+          [Container]
+          Image=docker.io/cloudflare/cloudflared:latest
+          ContainerName=cloudflared
+          EnvironmentFile=/var/home/core/.config/containers/systemd/secrets.env
+          Exec=tunnel --no-autoupdate run
 
-  trees:
-    # Configure containers
-    - local: quadlets
-      path: /var/home/services/.config/containers/systemd
+          [Service]
+          Restart=always
 
+          [Install]
+          WantedBy=default.target
+    # Configure container for Netdata
+    - path: /var/home/core/.config/containers/systemd/netdata.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Netdata Performance Monitor
+          After=network-online.target
+          AfterHost=var-mnt-active.mount
+          RequiresHost=var-mnt-active.mount
+
+          [Container]
+          Image=docker.io/netdata/netdata:latest
+          ContainerName=netdata
+          Environment=NETDATA_CLAIM_TOKEN="" NETDATA_CLOUD_ENABLED="0" DISABLE_TELEMETRY="1"
+
+          Volume=/etc/passwd:/host/etc/passwd:ro
+          Volume=/etc/group:/host/etc/group:ro
+          Volume=/proc:/host/proc:ro
+          Volume=/sys:/host/sys:ro
+          Volume=/etc/os-release:/host/etc/os-release:ro
+
+          Volume=/var/mnt/active/netdata/config:/etc/netdata:Z
+          Volume=/var/mnt/active/netdata/lib:/var/lib/netdata:Z
+          Volume=/var/mnt/active/netdata/cache:/var/cache/netdata:Z
+
+          AddCapability=SYS_PTRACE
+          AddCapability=SYS_ADMIN
+          SecurityLabelDisable=true
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
 systemd:
   units:
     # Mount ACTIVE
-    - name: mnt-active.mount
+    - name: var-mnt-active.mount
       enabled: true
       contents: |
         [Unit]
         Description=Mount ACTIVE
-        After=local-fs.target
+        Before=local-fs.target
 
         [Mount]
         What=/dev/disk/by-label/ACTIVE
-        Where=/mnt/active
+        Where=/var/mnt/active
         Type=ext4
         Options=defaults
 
         [Install]
         WantedBy=multi-user.target
-
     # Mount ARCHIVE
-    - name: mnt-archive.mount
+    - name: var-mnt-archive.mount
       enabled: true
       contents: |
         [Unit]
         Description=Mount ARCHIVE
-        After=local-fs.target
+        Before=local-fs.target
 
         [Mount]
         What=/dev/disk/by-label/ARCHIVE
-        Where=/mnt/archive
+        Where=/var/mnt/archive
         Type=ext4
         Options=defaults
 
