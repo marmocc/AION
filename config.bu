@@ -97,7 +97,6 @@ storage:
           [Unit]
           Description=Cloudflare Tunnel
           After=network-online.target
-          ConditionPathExists=/var/mnt/active/secrets.env
 
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
@@ -122,7 +121,6 @@ storage:
           [Unit]
           Description=Beszel Monitoring Agent
           After=network-online.target
-          ConditionPathExists=/var/mnt/active/secrets.env
 
           [Container]
           Image=docker.io/henrygd/beszel-agent:latest
@@ -149,7 +147,6 @@ storage:
           Description=Beszel Dashboard Hub
           After=network-online.target var-mnt-active.mount
           Requires=var-mnt-active.mount
-          ConditionPathExists=/var/mnt/active/beszel
 
           [Container]
           Image=docker.io/henrygd/beszel:latest
