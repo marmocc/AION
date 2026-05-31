@@ -75,6 +75,17 @@ storage:
           addresses=10.0.0.1/30
           [ipv6]
           method=disabled
+    # Configure internal container network
+    - path: /var/home/core/.config/containers/systemd/services.network
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Network]
+          NetworkName=services-bridge
+          Driver=bridge
     # Initialize example secrets file
     - path: /var/home/core/.config/containers/systemd/secrets.env.example
       mode: 0600
@@ -100,6 +111,7 @@ storage:
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
           ContainerName=cloudflared
+          Network=services.network
           EnvironmentFile=/var/home/core/.config/containers/systemd/secrets.env
           Exec=tunnel --no-autoupdate run
 
@@ -127,6 +139,7 @@ storage:
           [Container]
           Image=docker.io/netdata/netdata:latest
           ContainerName=netdata
+          Network=services.network
           Environment=NETDATA_CLAIM_TOKEN="" NETDATA_CLOUD_ENABLED="0" DISABLE_TELEMETRY="1"
 
           Volume=/etc/passwd:/host/etc/passwd:ro
