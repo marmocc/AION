@@ -35,6 +35,38 @@ storage:
       mode: 0644
       contents:
         inline: ""
+    # Configure Internet connection
+    - path: /etc/NetworkManager/system-connections/external.nmconnection
+      mode: 0600
+      overwrite: true
+      contents:
+        inline: |
+          [connection]
+          id=external
+          type=ethernet
+          interface-name=enp2s0
+          [ipv4]
+          method=manual
+          addresses=192.168.1.100/24
+          gateway=192.168.1.254
+          dns=192.168.1.254
+          [ipv6]
+          method=disabled
+    # Configure internal connection
+    - path: /etc/NetworkManager/system-connections/internal.nmconnection
+      mode: 0600
+      overwrite: true
+      contents:
+        inline: |
+          [connection]
+          id=internal
+          type=ethernet
+          interface-name=enp3s0
+          [ipv4]
+          method=manual
+          addresses=10.0.0.1/30
+          [ipv6]
+          method=disabled
     # Initialize example secrets file
     - path: /var/home/core/.config/containers/systemd/secrets.env.example
       mode: 0600
