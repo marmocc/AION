@@ -120,6 +120,9 @@ storage:
           Description=Netdata Performance Monitor
           After=network-online.target var-mnt-active.mount
           Requires=var-mnt-active.mount
+          ConditionPathExists=/var/mnt/active/netdata/config
+          ConditionPathExists=/var/mnt/active/netdata/lib
+          ConditionPathExists=/var/mnt/active/netdata/cache
 
           [Container]
           Image=docker.io/netdata/netdata:latest
