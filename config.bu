@@ -120,8 +120,8 @@ storage:
 
           [Install]
           WantedBy=default.target
-    # Configure container for Netdata
-    - path: /var/home/core/.config/containers/systemd/netdata.container
+    # Configure Beszel Agent
+    - path: /var/home/core/.config/containers/systemd/beszel-agent.container
       mode: 0644
       user: { name: core }
       group: { name: core }
@@ -129,32 +129,40 @@ storage:
       contents:
         inline: |
           [Unit]
-          Description=Netdata Performance Monitor
-          After=network-online.target var-mnt-active.mount
-          Requires=var-mnt-active.mount
-          ConditionPathExists=/var/mnt/active/netdata/config
-          ConditionPathExists=/var/mnt/active/netdata/lib
-          ConditionPathExists=/var/mnt/active/netdata/cache
+          Description=Beszel Monitoring Agent
+          After=network-online.target
 
           [Container]
-          Image=docker.io/netdata/netdata:latest
-          ContainerName=netdata
+          Image=docker.io/henrygd/beszel-agent:latest
+          ContainerName=beszel-agent
           Network=services.network
-          Environment=NETDATA_CLAIM_TOKEN="" NETDATA_CLOUD_ENABLED="0" DISABLE_TELEMETRY="1"
-
-          Volume=/etc/passwd:/host/etc/passwd:ro
-          Volume=/etc/group:/host/etc/group:ro
           Volume=/proc:/host/proc:ro
-          Volume=/sys:/host/sys:ro
-          Volume=/etc/os-release:/host/etc/os-release:ro
+          Environment=PORT=4567
 
-          Volume=/var/mnt/active/netdata/config:/etc/netdata:Z
-          Volume=/var/mnt/active/netdata/lib:/var/lib/netdata:Z
-          Volume=/var/mnt/active/netdata/cache:/var/cache/netdata:Z
+          [Service]
+          Restart=always
 
-          AddCapability=SYS_PTRACE
-          AddCapability=SYS_ADMIN
-          SecurityLabelDisable=true
+          [Install]
+          WantedBy=default.target
+    # Configure Beszel Hub
+    - path: /var/home/core/.config/containers/systemd/beszel-hub.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Beszel Dashboard Hub
+          After=network-online.target var-mnt-active.mount
+          Requires=var-mnt-active.mount
+          ConditionPathExists=/var/mnt/active/beszel
+
+          [Container]
+          Image=docker.io/henrygd/beszel:latest
+          ContainerName=beszel-hub
+          Network=services.network
+          Volume=/var/mnt/active/beszel:/app/beszel_data:Z
 
           [Service]
           Restart=always
