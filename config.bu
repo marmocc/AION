@@ -139,15 +139,14 @@ storage:
         inline: |
           [Unit]
           Description=Beszel Agent
-          After=network-online.target var-mnt-active.mount
-          Requires=var-mnt-active.mount
+          After=network-online.target var-mnt-active.mount enable-core-podman-socket.service
+          Requires=var-mnt-active.mount enable-core-podman-socket.service
 
           [Container]
           Image=docker.io/henrygd/beszel-agent:alpine
           ContainerName=beszel-agent
-          PodmanArgs=--pid=host
+          PodmanArgs=--pid=host --privileged
           Network=host
-          Privileged=true
           SecurityLabelDisable=true
           Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
           EnvironmentFile=/var/mnt/active/secrets.env
@@ -203,6 +202,23 @@ systemd:
         [Service]
         Type=oneshot
         ExecStart=/usr/bin/loginctl enable-linger core
+        RemainAfterExit=yes
+
+        [Install]
+        WantedBy=multi-user.target
+    # Enable Podman socket for core user
+    - name: enable-core-podman-socket.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Enable Podman socket for core user
+        After=enable-core-linger.service
+        Requires=enable-core-linger.service
+        ConditionFirstBoot=yes
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/systemctl --user -M core@ enable --now podman.socket
         RemainAfterExit=yes
 
         [Install]
