@@ -70,7 +70,7 @@ storage:
           addresses=10.0.0.1/30
           [ipv6]
           method=disabled
-    # Configure internal container network
+    # Configure rootless internal container network
     - path: /var/home/core/.config/containers/systemd/services.network
       mode: 0644
       user: { name: core }
@@ -81,7 +81,7 @@ storage:
           [Network]
           NetworkName=services-bridge
           Driver=bridge
-    # Configure container for Cloudflare Tunnel
+    # Configure rootless container for Cloudflare Tunnel
     - path: /var/home/core/.config/containers/systemd/cloudflared.container
       mode: 0644
       user: { name: core }
@@ -99,13 +99,63 @@ storage:
           ContainerName=cloudflared
           Network=services.network
           EnvironmentFile=/var/mnt/active/secrets.env
-          Exec=tunnel --no-autoupdate --metrics=0.0.0.0:6060 run
+          Exec=tunnel --no-autoupdate run
 
           [Service]
           Restart=always
 
           [Install]
           WantedBy=default.target
+    # Configure rootless container for Beszel
+    - path: /var/home/core/.config/containers/systemd/beszel.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Beszel Hub
+          After=network-online.target var-mnt-active.mount services-network.service
+          Requires=var-mnt-active.mount services-network.service
+
+          [Container]
+          Image=docker.io/henrygd/beszel:latest
+          ContainerName=beszel
+          Network=services.network
+          Volume=/var/mnt/active/beszel:/beszel_data:Z
+          PublishPort=8090:8090
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
+    # Configure rootful container for Beszel Agent
+    - path: /etc/containers/systemd/beszel-agent.container
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Beszel Agent
+          After=network-online.target var-mnt-active.mount
+
+          [Container]
+          Image=docker.io/henrygd/beszel-agent:alpine
+          ContainerName=beszel-agent
+          PodmanArgs=--pid=host
+          Network=host
+          Privileged=true
+          SecurityLabelDisable=true
+          Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
+          EnvironmentFile=/var/mnt/active/secrets.env
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
 systemd:
   units:
     # Mount ACTIVE
