@@ -140,6 +140,7 @@ storage:
           [Unit]
           Description=Beszel Agent
           After=network-online.target var-mnt-active.mount
+          Requires=var-mnt-active.mount
 
           [Container]
           Image=docker.io/henrygd/beszel-agent:alpine
