@@ -62,15 +62,15 @@ jobs:
 
       - name: Embed Ignition into Base
         run: |
-          chmod 600 *.nmconnection
+          chmod 600 networks/*
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/data -w /data \
             quay.io/coreos/coreos-installer:release \
             iso customize \
             --dest-device "${{ env.TARGET_DISK }}" \
             --dest-ignition config.ign \
-            --network-keyfile external.nmconnection \
-            --network-keyfile internal.nmconnection \
+            --network-keyfile networks/external.nmconnection \
+            --network-keyfile networks/internal.nmconnection \
             image-base.iso \
             -o image.iso
           sudo chown $(id -u):$(id -g) image.iso
