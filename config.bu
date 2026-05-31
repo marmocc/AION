@@ -170,7 +170,7 @@ systemd:
         What=/dev/disk/by-label/ACTIVE
         Where=/var/mnt/active
         Type=ext4
-        Options=defaults
+        Options=defaults,uid=1000,gid=1000
 
         [Install]
         WantedBy=multi-user.target
@@ -186,7 +186,7 @@ systemd:
         What=/dev/disk/by-label/ARCHIVE
         Where=/var/mnt/archive
         Type=ext4
-        Options=defaults
+        Options=defaults,uid=1000,gid=1000
 
         [Install]
         WantedBy=multi-user.target
