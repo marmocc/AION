@@ -91,22 +91,23 @@ storage:
         inline: |
           [Unit]
           Description=Cloudflare Tunnel
-          After=network-online.target
+          After=network-online.target services-network.service
+          Requires=services-network.service
 
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
           ContainerName=cloudflared
           Network=services.network
           EnvironmentFile=/var/mnt/active/secrets.env
-          Exec=tunnel --no-autoupdate run
+          Exec=tunnel --no-autoupdate run --metrics 0.0.0.0:6060 
 
           [Service]
           Restart=always
 
           [Install]
           WantedBy=default.target
-    # Configure Beszel Agent
-    - path: /var/home/core/.config/containers/systemd/beszel-agent.container
+    # Configure container for Gatus
+    - path: /var/home/core/.config/containers/systemd/gatus.container
       mode: 0644
       user: { name: core }
       group: { name: core }
@@ -114,40 +115,16 @@ storage:
       contents:
         inline: |
           [Unit]
-          Description=Beszel Monitoring Agent
-          After=network-online.target
+          Description=Gatus Health Monitor
+          After=network-online.target var-mnt-active.mount services-network.service
+          Requires=var-mnt-active.mount services-network.service
+          ConditionPathExists=/var/mnt/active/gatus/config.yaml
 
           [Container]
-          Image=docker.io/henrygd/beszel-agent:latest
-          ContainerName=beszel-agent
+          Image=docker.io/twinproduction/gatus:latest
+          ContainerName=gatus
           Network=services.network
-          Volume=/proc:/host/proc:ro
-          EnvironmentFile=/var/mnt/active/secrets.env
-          Environment=PORT=4567
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
-    # Configure Beszel Hub
-    - path: /var/home/core/.config/containers/systemd/beszel-hub.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        inline: |
-          [Unit]
-          Description=Beszel Dashboard Hub
-          After=network-online.target var-mnt-active.mount
-          Requires=var-mnt-active.mount
-
-          [Container]
-          Image=docker.io/henrygd/beszel:latest
-          ContainerName=beszel-hub
-          Network=services.network
-          Volume=/var/mnt/active/beszel:/app/beszel_data:Z
+          Volume=/var/mnt/active/gatus:/config:Z
 
           [Service]
           Restart=always
