@@ -38,11 +38,6 @@ storage:
       overwrite: true
       contents:
         inline: AION
-    # Make core user linger
-    - path: /var/lib/systemd/linger/core
-      mode: 0644
-      contents:
-        inline: ""
     # Configure Internet connection
     - path: /etc/NetworkManager/system-connections/external.nmconnection
       mode: 0600
@@ -190,6 +185,22 @@ systemd:
         Where=/var/mnt/archive
         Type=ext4
         Options=defaults
+
+        [Install]
+        WantedBy=multi-user.target
+    # Enable linger for core user
+    - name: enable-core-linger.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Enable Linger for core user
+        After=systemd-logind.service passwd.target
+        ConditionFirstBoot=yes
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/loginctl enable-linger core
+        RemainAfterExit=yes
 
         [Install]
         WantedBy=multi-user.target
