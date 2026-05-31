@@ -170,7 +170,23 @@ systemd:
         What=/dev/disk/by-label/ACTIVE
         Where=/var/mnt/active
         Type=ext4
-        Options=defaults,uid=1000,gid=1000
+        Options=defaults
+
+        [Install]
+        WantedBy=multi-user.target
+    # Fix ACTIVE ownership
+    - name: fix-active-ownership.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Fix ACTIVE ownership for core user
+        After=var-mnt-active.mount
+        Requires=var-mnt-active.mount
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/chown core:core /var/mnt/active
+        RemainAfterExit=yes
 
         [Install]
         WantedBy=multi-user.target
@@ -186,7 +202,23 @@ systemd:
         What=/dev/disk/by-label/ARCHIVE
         Where=/var/mnt/archive
         Type=ext4
-        Options=defaults,uid=1000,gid=1000
+        Options=defaults
+
+        [Install]
+        WantedBy=multi-user.target
+    # Fix ARCHIVE ownership
+    - name: fix-archive-ownership.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Fix ARCHIVE ownership for core user
+        After=var-mnt-archive.mount
+        Requires=var-mnt-archive.mount
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/chown core:core /var/mnt/archive
+        RemainAfterExit=yes
 
         [Install]
         WantedBy=multi-user.target
