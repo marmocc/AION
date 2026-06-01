@@ -124,7 +124,6 @@ storage:
           ContainerName=beszel
           Network=services.network
           Volume=/var/mnt/active/beszel:/beszel_data:Z
-          PublishPort=8090:8090
 
           [Service]
           Restart=always
