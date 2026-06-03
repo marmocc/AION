@@ -183,32 +183,6 @@ storage:
 
           [Install]
           WantedBy=default.target
-    # Configure rootless container for Vaultwarden
-    - path: /var/home/core/.config/containers/systemd/vaultwarden.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        inline: |
-          [Unit]
-          Description=Vaultwarden Password Manager
-          After=network-online.target services-network.service fix-active-ownership.service
-          Requires=services-network.service fix-active-ownership.service
-
-          [Container]
-          Image=docker.io/vaultwarden/server:latest
-          ContainerName=vaultwarden
-          Network=services.network
-          Environment=WEBSOCKET_ENABLED=true
-          Environment=SIGNUPS_ALLOWED=false
-          Volume=/var/mnt/active/vaultwarden:/data:Z
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
 systemd:
   units:
     # Mount ACTIVE
