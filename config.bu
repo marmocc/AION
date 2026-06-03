@@ -56,6 +56,14 @@ storage:
     # Enable linger for default core user
     - path: /var/lib/systemd/linger/core
       mode: 0644
+    # Fix mount permissions
+    - path: /etc/tmpfiles.d/fix-mount-permissions.conf
+      mode: 0644
+      contents:
+        inline: |
+          # Path            Mode User Group Age Argument
+          d /var/mnt/active  0755 core core - -
+          d /var/mnt/archive 0755 core core - -
     # Configure Internet connection
     - path: /etc/NetworkManager/system-connections/external.nmconnection
       mode: 0600
@@ -109,8 +117,8 @@ storage:
         inline: |
           [Unit]
           Description=Cloudflare Tunnel
-          After=network-online.target services-network.service fix-active-ownership.service
-          Requires=services-network.service fix-active-ownership.service
+          After=network-online.target services-network.service var-mnt-active.mount
+          Requires=services-network.service var-mnt-active.mount
 
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
@@ -134,8 +142,8 @@ storage:
         inline: |
           [Unit]
           Description=Beszel Hub
-          After=network-online.target services-network.service fix-active-ownership.service
-          Requires=services-network.service fix-active-ownership.service
+          After=network-online.target services-network.service var-mnt-active.mount
+          Requires=services-network.service var-mnt-active.mount
 
           [Container]
           Image=docker.io/henrygd/beszel:latest
@@ -156,8 +164,8 @@ storage:
         inline: |
           [Unit]
           Description=Beszel Agent
-          After=network-online.target fix-active-ownership.service
-          Requires=fix-active-ownership.service
+          After=network-online.target var-mnt-active.mount
+          Requires=var-mnt-active.mount
 
           [Container]
           Image=docker.io/henrygd/beszel-agent:alpine
@@ -183,8 +191,8 @@ storage:
         inline: |
           [Unit]
           Description=Kopia Backups
-          After=network-online.target services-network.service fix-active-ownership.service fix-archive-ownership.service
-          Requires=services-network.service fix-active-ownership.service fix-archive-ownership.service
+          After=network-online.target services-network.service var-mnt-active.mount var-mnt-archive.mount
+          Requires=services-network.service var-mnt-active.mount var-mnt-archive.mount
 
           [Container]
           Image=docker.io/kopia/kopia:latest
@@ -219,22 +227,6 @@ systemd:
 
         [Install]
         WantedBy=multi-user.target
-    # Fix ACTIVE ownership
-    - name: fix-active-ownership.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Fix ACTIVE ownership for core user
-        After=var-mnt-active.mount
-        Requires=var-mnt-active.mount
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/bin/chown core:core /var/mnt/active
-        RemainAfterExit=yes
-
-        [Install]
-        WantedBy=multi-user.target
     # Mount ARCHIVE
     - name: var-mnt-archive.mount
       enabled: true
@@ -248,22 +240,6 @@ systemd:
         Where=/var/mnt/archive
         Type=ext4
         Options=defaults
-
-        [Install]
-        WantedBy=multi-user.target
-    # Fix ARCHIVE ownership
-    - name: fix-archive-ownership.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Fix ARCHIVE ownership for core user
-        After=var-mnt-archive.mount
-        Requires=var-mnt-archive.mount
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/bin/chown core:core /var/mnt/archive
-        RemainAfterExit=yes
 
         [Install]
         WantedBy=multi-user.target
