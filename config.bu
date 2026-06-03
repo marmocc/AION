@@ -13,11 +13,12 @@ storage:
       mode: 0755
     - path: /var/mnt/archive
       mode: 0755
-    # Prepare permissions for containers
+    # Prepare permission for core config
     - path: /var/home/core/.config
       mode: 0755
       user: { name: core }
       group: { name: core }
+    # Prepare permissions for core containers
     - path: /var/home/core/.config/containers
       mode: 0755
       user: { name: core }
@@ -26,11 +27,25 @@ storage:
       mode: 0755
       user: { name: core }
       group: { name: core }
+    # Prepare permission for core units
+    - path: /var/home/core/.config/systemd
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
+    - path: /var/home/core/.config/systemd/user
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
   links:
     # Set the local timezone
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Rome
       overwrite: true
+    # Enable core's podman socket
+    - path: /var/home/core/.config/systemd/user/sockets.target.wants/podman.socket
+      target: /usr/lib/systemd/user/podman.socket
+      user: { name: core }
+      group: { name: core }
   files:
     # Set the hostname
     - path: /etc/hostname
@@ -38,6 +53,9 @@ storage:
       overwrite: true
       contents:
         inline: AION
+    # Enable linger for default core user
+    - path: /var/lib/systemd/linger/core
+      mode: 0644
     # Configure Internet connection
     - path: /etc/NetworkManager/system-connections/external.nmconnection
       mode: 0600
@@ -138,8 +156,8 @@ storage:
         inline: |
           [Unit]
           Description=Beszel Agent
-          After=network-online.target enable-core-podman-socket.service fix-active-ownership.service
-          Requires=enable-core-podman-socket.service fix-active-ownership.service
+          After=network-online.target fix-active-ownership.service
+          Requires=fix-active-ownership.service
 
           [Container]
           Image=docker.io/henrygd/beszel-agent:alpine
@@ -245,37 +263,6 @@ systemd:
         [Service]
         Type=oneshot
         ExecStart=/usr/bin/chown core:core /var/mnt/archive
-        RemainAfterExit=yes
-
-        [Install]
-        WantedBy=multi-user.target
-    # Enable linger for core user
-    - name: enable-core-linger.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Enable Linger for core user
-        After=systemd-logind.service passwd.target
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/bin/loginctl enable-linger core
-        RemainAfterExit=yes
-
-        [Install]
-        WantedBy=multi-user.target
-    # Enable Podman socket for core user
-    - name: enable-core-podman-socket.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Enable Podman socket for core user
-        After=enable-core-linger.service
-        Requires=enable-core-linger.service
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/bin/systemctl --user -M core@ enable --now podman.socket
         RemainAfterExit=yes
 
         [Install]
