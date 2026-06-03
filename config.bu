@@ -5,7 +5,7 @@ passwd:
     # Set SSH key for default core user
     - name: core
       ssh_authorized_keys:
-        - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0/nWAS+nfgwj13kIfeIQq3UW1Bp6vrbeOCIi8dHkOU marmocc@marmo.cc"
+        - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ5mcen2vcOenfR6CUmHu3h+zrV4573xJMo0NMKcfXHD"
 storage:
   directories:
     # Prepare permissions for mount
@@ -177,6 +177,32 @@ storage:
           Volume=/var/mnt/active:/target:Z
           EnvironmentFile=/var/mnt/active/secrets.env
           Exec=server start --insecure --address=0.0.0.0:51515
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
+    # Configure rootless container for Vaultwarden
+    - path: /var/home/core/.config/containers/systemd/vaultwarden.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Vaultwarden Password Manager
+          After=network-online.target services-network.service fix-active-ownership.service
+          Requires=services-network.service fix-active-ownership.service
+
+          [Container]
+          Image=docker.io/vaultwarden/server:latest
+          ContainerName=vaultwarden
+          Network=services.network
+          Environment=WEBSOCKET_ENABLED=true
+          Environment=SIGNUPS_ALLOWED=false
+          Volume=/var/mnt/active/vaultwarden:/data:Z
 
           [Service]
           Restart=always
