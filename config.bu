@@ -129,54 +129,6 @@ storage:
 
           [Install]
           WantedBy=default.target
-    # Configure rootless container for Beszel
-    - path: /var/home/core/.config/containers/systemd/beszel.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        inline: |
-          [Unit]
-          Description=Beszel Hub
-          After=network-online.target services-network.service
-          Requires=services-network.service
-
-          [Container]
-          Image=docker.io/henrygd/beszel:latest
-          ContainerName=beszel
-          Network=services.network
-          Volume=beszel_data:/beszel_data:Z
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
-    # Configure rootful container for Beszel Agent
-    - path: /etc/containers/systemd/beszel-agent.container
-      mode: 0644
-      overwrite: true
-      contents:
-        inline: |
-          [Unit]
-          Description=Beszel Agent
-          After=network-online.target
-
-          [Container]
-          Image=docker.io/henrygd/beszel-agent:alpine
-          ContainerName=beszel-agent
-          PodmanArgs=--pid=host --privileged
-          Network=host
-          SecurityLabelDisable=true
-          Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
-          Secret=beszel_agent_ssh_key,type=env,target=KEY
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=multi-user.target
     # Configure rootless container for MariaDB
     - path: /var/home/core/.config/containers/systemd/mariadb.container
       mode: 0644
