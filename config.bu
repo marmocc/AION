@@ -147,7 +147,7 @@ storage:
           ContainerName=mariadb
           Network=services.network
           Volume=mariadb_data:/var/lib/mysql:Z
-          Secret=mariadb_root_password,type=env,target=MARIADB_ROOT_PASSWORD
+          Secret=database_root_password,type=env,target=MARIADB_ROOT_PASSWORD
 
           [Service]
           Restart=always
@@ -177,7 +177,7 @@ storage:
           Environment=DB_NAME=seafile
           Environment=DB_USER=seafile
           Environment=SEAFILE_SERVER_HOSTNAME=drive.marmo.cc
-          Secret=mariadb_root_password,type=env,target=MARIADB_ROOT_PASSWORD
+          Secret=database_root_password,type=env,target=MYSQL_ROOT_PASSWORD
 
           [Service]
           Restart=always
