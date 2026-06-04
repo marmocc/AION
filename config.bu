@@ -181,34 +181,6 @@ storage:
 
           [Install]
           WantedBy=multi-user.target
-    # Configure rootless container for Kopia
-    - path: /var/home/core/.config/containers/systemd/kopia.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        inline: |
-          [Unit]
-          Description=Kopia Backups
-          After=network-online.target services-network.service var-mnt-active.mount var-mnt-archive.mount
-          Requires=services-network.service var-mnt-active.mount var-mnt-archive.mount
-
-          [Container]
-          Image=docker.io/kopia/kopia:latest
-          ContainerName=kopia
-          Network=services.network
-          Volume=/var/mnt/active/kopia:/app:Z
-          Volume=/var/mnt/archive/kopia:/repository:Z
-          Volume=/var/mnt/active:/target:Z
-          EnvironmentFile=/var/mnt/active/secrets.env
-          Exec=server start --insecure --address=0.0.0.0:51515
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
 systemd:
   units:
     # Mount ACTIVE
