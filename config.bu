@@ -181,6 +181,8 @@ storage:
     - path: /var/home/core/.config/containers/systemd/mariadb.container
       mode: 0644
       overwrite: true
+      user: { name: core }
+      group: { name: core }
       contents:
         inline: |
           [Unit]
@@ -207,6 +209,8 @@ storage:
     # Configure rootless container for Seafile
     - path: /var/home/core/.config/containers/systemd/seafile.container
       mode: 0644
+      user: { name: core }
+      group: { name: core }
       overwrite: true
       contents:
         inline: |
