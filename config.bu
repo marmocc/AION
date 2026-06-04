@@ -216,7 +216,7 @@ storage:
           Requires=services-network.service var-mnt-data.mount mariadb.service
 
           [Container]
-          Image=seafileltd/seafile-mc:latest
+          Image=docker.io/seafileltd/seafile-mc:latest
           ContainerName=seafile
           Network=services.network
           Volume=/var/mnt/data/seafile:/shared:Z
