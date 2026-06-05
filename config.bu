@@ -34,6 +34,14 @@ storage:
       mode: 0755
       user: { name: core }
       group: { name: core }
+    - path: /var/home/core/.config/systemd/user/sockets.target.wants
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
+    - path: /var/home/core/.config/systemd/user/timers.target.wants
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
   links:
     # Set the local timezone
     - path: /etc/localtime
@@ -42,6 +50,11 @@ storage:
     # Enable core's podman socket
     - path: /var/home/core/.config/systemd/user/sockets.target.wants/podman.socket
       target: /usr/lib/systemd/user/podman.socket
+      user: { name: core }
+      group: { name: core }
+    # Enable core's backup timer
+    - path: /var/home/core/.config/systemd/user/timers.target.wants/podman-backup.timer
+      target: /var/home/core/.config/systemd/user/podman-backup.timer
       user: { name: core }
       group: { name: core }
   files:
@@ -150,13 +163,46 @@ storage:
 
           Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
           Volume=filebrowser_data:/home/filebrowser/data:Z
-          Volume=/var/mnt/data/filebrowser:/srv:Z
+          Volume=/var/mnt/data:/srv:Z
 
           [Service]
           Restart=always
 
           [Install]
           WantedBy=default.target
+    - path: /var/home/core/.config/systemd/user/podman-backup.service
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents: |
+        [Unit]
+        Description=Podman Volumes Automated Backup
+        ConditionPathIsMountPoint=/var/mnt/data
+
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/sh -c '\
+          mkdir -p /var/mnt/data/backups && \
+          for vol in $(/usr/bin/podman volume ls --format "{{.Name}}"); do \
+            echo "Backing up volume: $vol"; \
+            /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/data/backups/${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
+          done'
+    - path: /var/home/core/.config/systemd/user/podman-backup.timer
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents: |
+        [Unit]
+        Description=Run Podman Volumes Automated Backup daily
+
+        [Timer]
+        OnCalendar=*-*-* 03:00:00
+        Persistent=true
+
+        [Install]
+        WantedBy=timers.target
 systemd:
   units:
     # Mount data
