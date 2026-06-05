@@ -187,7 +187,7 @@ storage:
             mkdir -p /var/mnt/data/backups && \
             for vol in $(/usr/bin/podman volume ls --format "{{.Name}}"); do \
               echo "Backing up volume: $vol"; \
-              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/data/backups/${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
+              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/data/backups/$${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
             done'
     - path: /var/home/core/.config/systemd/user/podman-backup.timer
       mode: 0644
