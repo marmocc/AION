@@ -187,6 +187,32 @@ storage:
 
           [Install]
           WantedBy=default.target
+    # Configure rootless container for Filebrowser
+    - path: /var/home/core/.config/containers/systemd/filebrowser.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Filebrowser
+          After=network-online.target services-network.service var-mnt-data.mount
+          Requires=services-network.service var-mnt-data.mount
+
+          [Container]
+          Image=docker.io/filebrowser/filebrowser:latest
+          ContainerName=filebrowser
+          Hostname=filebrowser
+          Network=services.network
+          Volume=/var/mnt/data/filebrowser:/srv:Z
+          Volume=filebrowser_data:/database:Z
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
 systemd:
   units:
     # Mount data
