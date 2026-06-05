@@ -120,7 +120,6 @@ storage:
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
           ContainerName=cloudflared
-          Hostname=cloudflared
           Network=services.network
           Secret=cloudflared_tunnel_token,type=env,target=TUNNEL_TOKEN
           Exec=tunnel --no-autoupdate --metrics=0.0.0.0:2000 run
@@ -146,7 +145,6 @@ storage:
           [Container]
           Image=docker.io/kopia/kopia:latest
           ContainerName=kopia
-          Hostname=kopia
           Network=services.network
           Volume=kopia_data:/app:Z
           Volume=/var/mnt/data/kopia:/repository:Z
@@ -177,7 +175,6 @@ storage:
           [Container]
           Image=docker.io/syncthing/syncthing:latest
           ContainerName=syncthing
-          Hostname=syncthing
           Network=services.network
           Volume=syncthing_data:/var/syncthing/config:Z
           Volume=/var/mnt/data/syncthing:/var/syncthing/data:Z
@@ -203,7 +200,6 @@ storage:
           [Container]
           Image=docker.io/filebrowser/filebrowser:latest
           ContainerName=filebrowser
-          Hostname=filebrowser
           Network=services.network
           Volume=/var/mnt/data/filebrowser:/srv:Z
           Volume=filebrowser_data:/database:Z
