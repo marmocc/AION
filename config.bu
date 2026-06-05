@@ -129,7 +129,7 @@ storage:
 
           [Install]
           WantedBy=default.target
-    # Configure rootless container for Filebrowser
+    # Configure rootless container for FileBrowser Quantum
     - path: /var/home/core/.config/containers/systemd/filebrowser.container
       mode: 0644
       user: { name: core }
@@ -138,18 +138,19 @@ storage:
       contents:
         inline: |
           [Unit]
-          Description=Filebrowser
+          Description=FileBrowser Quantum
           After=network-online.target services-network.service var-mnt-data.mount
           Requires=services-network.service var-mnt-data.mount
 
           [Container]
-          Image=docker.io/filebrowser/filebrowser:latest
+          Image=docker.io/gtstef/filebrowser:latest
           ContainerName=filebrowser
           Network=services.network
-          Volume=/var/mnt/data/filebrowser:/srv:Z
-          Volume=filebrowser_data:/database:Z
           PodmanArgs=--user 0:0
-          Exec=--root /data
+
+          Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
+          Volume=filebrowser_data:/home/filebrowser/data:Z
+          Volume=/var/mnt/data/filebrowser:/srv:Z
 
           [Service]
           Restart=always
