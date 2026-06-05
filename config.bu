@@ -175,34 +175,36 @@ storage:
       user: { name: core }
       group: { name: core }
       overwrite: true
-      contents: |
-        [Unit]
-        Description=Podman Volumes Automated Backup
-        ConditionPathIsMountPoint=/var/mnt/data
+      contents:
+        inline: |
+          [Unit]
+          Description=Podman Volumes Automated Backup
+          ConditionPathIsMountPoint=/var/mnt/data
 
-        [Service]
-        Type=oneshot
-        ExecStart=/bin/sh -c '\
-          mkdir -p /var/mnt/data/backups && \
-          for vol in $(/usr/bin/podman volume ls --format "{{.Name}}"); do \
-            echo "Backing up volume: $vol"; \
-            /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/data/backups/${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
-          done'
+          [Service]
+          Type=oneshot
+          ExecStart=/bin/sh -c '\
+            mkdir -p /var/mnt/data/backups && \
+            for vol in $(/usr/bin/podman volume ls --format "{{.Name}}"); do \
+              echo "Backing up volume: $vol"; \
+              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/data/backups/${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
+            done'
     - path: /var/home/core/.config/systemd/user/podman-backup.timer
       mode: 0644
       user: { name: core }
       group: { name: core }
       overwrite: true
-      contents: |
-        [Unit]
-        Description=Run Podman Volumes Automated Backup daily
+      contents:
+        inline: |
+          [Unit]
+          Description=Run Podman Volumes Automated Backup daily
 
-        [Timer]
-        OnCalendar=*-*-* 03:00:00
-        Persistent=true
+          [Timer]
+          OnCalendar=*-*-* 03:00:00
+          Persistent=true
 
-        [Install]
-        WantedBy=timers.target
+          [Install]
+          WantedBy=timers.target
 systemd:
   units:
     # Mount data
