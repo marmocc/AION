@@ -179,7 +179,8 @@ storage:
           ContainerName=syncthing
           Hostname=syncthing
           Network=services.network
-          Volume=/var/mnt/data/syncthing:/var/syncthing:Z
+          Volume=syncthing_data:/var/syncthing/config:Z
+          Volume=/var/mnt/data/syncthing:/var/syncthing/data:Z
 
           [Service]
           Restart=always
