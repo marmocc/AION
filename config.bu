@@ -120,6 +120,7 @@ storage:
           [Container]
           Image=docker.io/cloudflare/cloudflared:latest
           ContainerName=cloudflared
+          Hostname=cloudflared.AION
           Network=services.network
           Secret=cloudflared_tunnel_token,type=env,target=TUNNEL_TOKEN
           Exec=tunnel --no-autoupdate --metrics=0.0.0.0:2000 run
@@ -129,33 +130,39 @@ storage:
 
           [Install]
           WantedBy=default.target
-    # Configure rootless container for MariaDB
-    - path: /var/home/core/.config/containers/systemd/mariadb.container
+    # Configure rootless container for Kopia
+    - path: /var/home/core/.config/containers/systemd/kopia.container
       mode: 0644
-      overwrite: true
       user: { name: core }
       group: { name: core }
+      overwrite: true
       contents:
         inline: |
           [Unit]
-          Description=MariaDB Database
-          After=network-online.target services-network.service
-          Requires=services-network.service
+          Description=Kopia Backups
+          After=network-online.target services-network.service var-mnt-data.mount
+          Requires=services-network.service var-mnt-data.mount
 
           [Container]
-          Image=docker.io/library/mariadb:10.11
-          ContainerName=mariadb
+          Image=docker.io/kopia/kopia:latest
+          ContainerName=kopia
+          Hostname=kopia.AION
           Network=services.network
-          Volume=mariadb_data:/var/lib/mysql:Z
-          Secret=database_root_password,type=env,target=MARIADB_ROOT_PASSWORD
+          Volume=kopia_data:/app:Z
+          Volume=/var/mnt/data/kopia:/repository:Z
+
+          Secret=kopia_repo_password,type=env,target=KOPIA_PASSWORD
+          Secret=kopia_ui_password,type=env,target=KOPIA_UI_PASSWORD
+          Environment=KOPIA_UI_USERNAME=marmocc
+          Exec=server start --insecure --address=0.0.0.0:51515
 
           [Service]
           Restart=always
 
           [Install]
           WantedBy=default.target
-    # Configure rootless container for Seafile
-    - path: /var/home/core/.config/containers/systemd/seafile.container
+    # Configure rootless container for Syncthing
+    - path: /var/home/core/.config/containers/systemd/syncthing.container
       mode: 0644
       user: { name: core }
       group: { name: core }
@@ -163,21 +170,16 @@ storage:
       contents:
         inline: |
           [Unit]
-          Description=Seafile Drive
-          After=network-online.target services-network.service var-mnt-data.mount mariadb.service
-          Requires=services-network.service var-mnt-data.mount mariadb.service
+          Description=Syncthing
+          After=network-online.target services-network.service var-mnt-data.mount
+          Requires=services-network.service var-mnt-data.mount
 
           [Container]
-          Image=docker.io/seafileltd/seafile-mc:latest
-          ContainerName=seafile
+          Image=docker.io/syncthing/syncthing:latest
+          ContainerName=syncthing
+          Hostname=syncthing.AION
           Network=services.network
-          Volume=/var/mnt/data/seafile:/shared:Z
-
-          Environment=DB_HOST=mariadb
-          Environment=DB_NAME=seafile
-          Environment=DB_USER=seafile
-          Environment=SEAFILE_SERVER_HOSTNAME=drive.marmo.cc
-          Secret=database_root_password,type=env,target=MYSQL_ROOT_PASSWORD
+          Volume=/var/mnt/data/syncthing:/var/syncthing:Z
 
           [Service]
           Restart=always
