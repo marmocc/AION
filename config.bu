@@ -159,7 +159,6 @@ storage:
           Image=docker.io/henrygd/beszel:latest
           ContainerName=beszel
           Network=services.network
-          PublishPort=127.0.0.1:8090:8090
           Volume=beszel_data:/beszel_data:Z
 
           [Service]
@@ -184,7 +183,7 @@ storage:
           Network=host
           SecurityLabelDisable=true
           Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
-          Environment=HUB_URL=http://127.0.0.1:8090
+          Secret=beszel_agent_ssh_key,type=env,target=KEY
 
           [Service]
           Restart=always
