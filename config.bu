@@ -9,7 +9,7 @@ passwd:
 storage:
   directories:
     # Prepare permissions for mount
-    - path: /var/mnt/data
+    - path: /var/mnt/wd-blue-1tb
       mode: 0755
     # Prepare permission for core config
     - path: /var/home/core/.config
@@ -73,7 +73,7 @@ storage:
       contents:
         inline: |
           # Path            Mode User Group Age Argument
-          d /var/mnt/data  0755 core core - -
+          d /var/mnt/wd-blue-1tb  0755 core core - -
     # Configure Internet connection
     - path: /etc/NetworkManager/system-connections/external.nmconnection
       mode: 0600
@@ -163,7 +163,7 @@ storage:
 
           Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
           Volume=filebrowser_data:/home/filebrowser/data:Z
-          Volume=/var/mnt/data:/srv:Z
+          Volume=/var/mnt/wd-blue-1tb:/wd-blue-1tb:Z
 
           [Service]
           Restart=always
@@ -179,15 +179,15 @@ storage:
         inline: |
           [Unit]
           Description=Podman Volumes Automated Backup
-          ConditionPathIsMountPoint=/var/mnt/data
+          ConditionPathIsMountPoint=/var/mnt/wd-blue-1tb
 
           [Service]
           Type=oneshot
           ExecStart=/bin/sh -c '\
-            mkdir -p /var/mnt/data/backups && \
+            mkdir -p /var/mnt/wd-blue-1tb/backups && \
             for vol in $(/usr/bin/podman volume ls --format "{{.Name}}"); do \
               echo "Backing up volume: $vol"; \
-              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/data/backups/$${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
+              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/wd-blue-1tb/backups/$${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
             done'
     - path: /var/home/core/.config/systemd/user/podman-backup.timer
       mode: 0644
@@ -212,12 +212,12 @@ systemd:
       enabled: true
       contents: |
         [Unit]
-        Description=Mount data
+        Description=Mount wd-blue-1tb
         Before=local-fs.target
 
         [Mount]
         What=UUID=0047719d-a4a3-4455-a7fa-a697f7daab8c
-        Where=/var/mnt/data
+        Where=/var/mnt/wd-blue-1tb
         Type=btrfs
         Options=defaults,x-systemd.device-timeout=30s
 
