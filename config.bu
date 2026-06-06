@@ -152,13 +152,14 @@ storage:
         inline: |
           [Unit]
           Description=FileBrowser Quantum
-          After=network-online.target services-network.service var-mnt-data.mount
-          Requires=services-network.service var-mnt-data.mount
+          After=network-online.target services-network.service var-mnt-wd-blue-1tb.mount
+          Requires=services-network.service var-mnt-wd-blue-1tb.mount
 
           [Container]
           Image=docker.io/gtstef/filebrowser:latest
           ContainerName=filebrowser
           Network=services.network
+          PublishPort=10.0.0.1:8080:80
           PodmanArgs=--user 0:0
 
           Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
@@ -208,7 +209,7 @@ storage:
 systemd:
   units:
     # Mount data
-    - name: var-mnt-data.mount
+    - name: var-mnt-wd-blue-1tb.mount
       enabled: true
       contents: |
         [Unit]
