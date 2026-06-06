@@ -9,7 +9,7 @@ passwd:
 storage:
   directories:
     # Prepare permissions for mount
-    - path: /var/mnt/wd-blue-1tb
+    - path: /var/mnt/wd_blue_1tb
       mode: 0755
     # Prepare permission for core config
     - path: /var/home/core/.config
@@ -73,7 +73,7 @@ storage:
       contents:
         inline: |
           # Path            Mode User Group Age Argument
-          d /var/mnt/wd-blue-1tb  0755 core core - -
+          d /var/mnt/wd_blue_1tb  0755 core core - -
     # Configure Internet connection
     - path: /etc/NetworkManager/system-connections/external.nmconnection
       mode: 0600
@@ -200,8 +200,8 @@ storage:
         inline: |
           [Unit]
           Description=FileBrowser Quantum
-          After=network-online.target services-network.service var-mnt-wd-blue-1tb.mount
-          Requires=services-network.service var-mnt-wd-blue-1tb.mount
+          After=network-online.target services-network.service var-mnt-wd_blue_1tb.mount
+          Requires=services-network.service var-mnt-wd_blue_1tb.mount
 
           [Container]
           Image=docker.io/gtstef/filebrowser:latest
@@ -212,7 +212,7 @@ storage:
 
           Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
           Volume=filebrowser_data:/home/filebrowser/data:Z
-          Volume=/var/mnt/wd-blue-1tb:/wd-blue-1tb:Z
+          Volume=/var/mnt/wd_blue_1tb:/wd_blue_1tb:Z
 
           [Service]
           Restart=always
@@ -229,15 +229,15 @@ storage:
         inline: |
           [Unit]
           Description=Podman Volumes Automated Backup
-          ConditionPathIsMountPoint=/var/mnt/wd-blue-1tb
+          ConditionPathIsMountPoint=/var/mnt/wd_blue_1tb
 
           [Service]
           Type=oneshot
           ExecStart=/bin/sh -c '\
-            mkdir -p /var/mnt/wd-blue-1tb/backups && \
+            mkdir -p /var/mnt/wd_blue_1tb/backups && \
             for vol in $(/usr/bin/podman volume ls --format "{{.Name}}"); do \
               echo "Backing up volume: $vol"; \
-              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/wd-blue-1tb/backups/$${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
+              /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/wd_blue_1tb/backups/$${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
             done'
     # Configure Podman Named Volumes automatic backup timer
     - path: /var/home/core/.config/systemd/user/podman-backup.timer
@@ -259,16 +259,16 @@ storage:
 systemd:
   units:
     # Mount data
-    - name: var-mnt-wd-blue-1tb.mount
+    - name: var-mnt-wd_blue_1tb.mount
       enabled: true
       contents: |
         [Unit]
-        Description=Mount wd-blue-1tb
+        Description=Mount wd_blue_1tb
         Before=local-fs.target
 
         [Mount]
         What=UUID=0047719d-a4a3-4455-a7fa-a697f7daab8c
-        Where=/var/mnt/wd-blue-1tb
+        Where=/var/mnt/wd_blue_1tb
         Type=btrfs
         Options=defaults,x-systemd.device-timeout=30s
 
