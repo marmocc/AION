@@ -142,6 +142,55 @@ storage:
 
           [Install]
           WantedBy=default.target
+    # Configure rootless container for Beszel
+    - path: /var/home/core/.config/containers/systemd/beszel.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Beszel Hub
+          After=network-online.target services-network.service
+          Requires=services-network.service
+
+          [Container]
+          Image=docker.io/henrygd/beszel:latest
+          ContainerName=beszel
+          Network=services.network
+          PublishPort=127.0.0.1:8090:8090
+          Volume=beszel_data:/beszel_data:Z
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=default.target
+    # Configure rootful container for Beszel Agent
+    - path: /etc/containers/systemd/beszel-agent.container
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          [Unit]
+          Description=Beszel Agent
+          After=network-online.target
+
+          [Container]
+          Image=docker.io/henrygd/beszel-agent:alpine
+          ContainerName=beszel-agent
+          PodmanArgs=--pid=host --privileged
+          Network=host
+          SecurityLabelDisable=true
+          Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
+          Environment=HUB_URL=http://127.0.0.1:8090
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
     # Configure rootless container for FileBrowser Quantum
     - path: /var/home/core/.config/containers/systemd/filebrowser.container
       mode: 0644
@@ -171,6 +220,7 @@ storage:
 
           [Install]
           WantedBy=default.target
+    # Configure Podman Named Volumes automatic backup service
     - path: /var/home/core/.config/systemd/user/podman-backup.service
       mode: 0644
       user: { name: core }
@@ -190,6 +240,7 @@ storage:
               echo "Backing up volume: $vol"; \
               /usr/bin/podman volume export "$vol" | /usr/bin/gzip > /var/mnt/wd-blue-1tb/backups/$${vol}_$(date +%%F_%%H%%M%%S).tar.gz; \
             done'
+    # Configure Podman Named Volumes automatic backup timer
     - path: /var/home/core/.config/systemd/user/podman-backup.timer
       mode: 0644
       user: { name: core }
