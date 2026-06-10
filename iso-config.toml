@@ -1,3 +1,6 @@
+[customizations.image]
+rootfs = "ext4"
+
 [customizations.installer.kickstart]
 contents = """
 clearpart --all --initlabel
