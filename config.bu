@@ -65,18 +65,6 @@ storage:
         inline: |
           # Path            Mode User Group Age Argument
           d /var/mnt/wd_blue_1tb  0755 core core - -
-    # Configure Internet connection
-    - path: /etc/NetworkManager/system-connections/external.nmconnection
-      mode: 0600
-      overwrite: true
-      contents:
-        local: network/external.nmconnection
-    # Configure internal connection
-    - path: /etc/NetworkManager/system-connections/internal.nmconnection
-      mode: 0600
-      overwrite: true
-      contents:
-        local: network/internal.nmconnection
     # Embed AION TLS certificate
     - path: /var/home/core/AION.crt
       mode: 0644
