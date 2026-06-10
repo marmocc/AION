@@ -70,33 +70,13 @@ storage:
       mode: 0600
       overwrite: true
       contents:
-        inline: |
-          [connection]
-          id=external
-          type=ethernet
-          interface-name=enp2s0
-          [ipv4]
-          method=manual
-          addresses=192.168.1.100/24
-          gateway=192.168.1.254
-          dns=192.168.1.254
-          [ipv6]
-          method=disabled
+        local: network/external.nmconnection
     # Configure internal connection
     - path: /etc/NetworkManager/system-connections/internal.nmconnection
       mode: 0600
       overwrite: true
       contents:
-        inline: |
-          [connection]
-          id=internal
-          type=ethernet
-          interface-name=enp3s0
-          [ipv4]
-          method=manual
-          addresses=10.0.0.1/30
-          [ipv6]
-          method=disabled
+        local: network/internal.nmconnection
     # Embed AION TLS certificate
     - path: /var/home/core/AION.crt
       mode: 0644
@@ -123,24 +103,7 @@ storage:
       group: { name: core }
       overwrite: true
       contents:
-        inline: |
-          [Unit]
-          Description=Cloudflare Tunnel
-          After=network-online.target services-network.service
-          Requires=services-network.service
-
-          [Container]
-          Image=docker.io/cloudflare/cloudflared:latest
-          ContainerName=cloudflared
-          Network=services.network
-          Secret=cloudflared_tunnel_token,type=env,target=TUNNEL_TOKEN
-          Exec=tunnel --no-autoupdate --metrics=0.0.0.0:2000 run
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
+        local: quadlets/cloudflared.container
     # Configure rootless container for Beszel
     - path: /var/home/core/.config/containers/systemd/beszel.container
       mode: 0644
@@ -148,50 +111,13 @@ storage:
       group: { name: core }
       overwrite: true
       contents:
-        inline: |
-          [Unit]
-          Description=Beszel Hub
-          After=network-online.target services-network.service
-          Requires=services-network.service
-
-          [Container]
-          Image=docker.io/henrygd/beszel:latest
-          ContainerName=beszel
-          Network=services.network
-
-          Volume=/var/home/core/beszel:/beszel_data:Z
-          Environment=USER_EMAIL=marmocc@marmo.cc
-          Secret=beszel_admin_password,type=env,target=USER_PASSWORD
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
+        local: quadlets/beszel.container
     # Configure rootful container for Beszel Agent
     - path: /etc/containers/systemd/beszel-agent.container
       mode: 0644
       overwrite: true
       contents:
-        inline: |
-          [Unit]
-          Description=Beszel Agent
-          After=network-online.target
-
-          [Container]
-          Image=docker.io/henrygd/beszel-agent:alpine
-          ContainerName=beszel-agent
-          PodmanArgs=--pid=host --privileged
-          Network=host
-          SecurityLabelDisable=true
-          Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
-          Secret=beszel_agent_ssh_key,type=env,target=KEY
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=multi-user.target
+        local: quadlets/beszel-agent.container
     # Configure rootless container for Kopia
     - path: /var/home/core/.config/containers/systemd/kopia.container
       mode: 0644
@@ -199,35 +125,7 @@ storage:
       group: { name: core }
       overwrite: true
       contents:
-        inline: |
-          [Unit]
-          Description=Kopia Server
-          After=network-online.target services-network.service var-mnt-wd_blue_1tb.mount
-          Requires=services-network.service var-mnt-wd_blue_1tb.mount
-
-          [Container]
-          Image=docker.io/kopia/kopia:latest
-          ContainerName=kopia
-          Network=services.network
-          PublishPort=10.0.0.1:51515:51515
-
-          Volume=/var/mnt/wd_blue_1tb/kopia:/repository:Z
-          Environment=KOPIA_SERVER_USERNAME=marmocc
-          Secret=kopia_server_password,type=env,target=KOPIA_SERVER_PASSWORD
-
-          Volume=/var/home/core/AION.crt:/tls/AION.crt:ro,Z
-          Secret=aion_tls_key,type=mount,target=/tls/AION.key
-
-          Exec=server start \
-              --tls-cert-file=/tls/AION.crt \
-              --tls-key-file=/tls/AION.key \
-              --address=0.0.0.0:51515
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
+        local: quadlets/kopia.container
     # Configure rootless container for FileBrowser Quantum
     - path: /var/home/core/.config/containers/systemd/filebrowser.container
       mode: 0644
@@ -235,28 +133,7 @@ storage:
       group: { name: core }
       overwrite: true
       contents:
-        inline: |
-          [Unit]
-          Description=FileBrowser Quantum
-          After=network-online.target services-network.service var-mnt-wd_blue_1tb.mount
-          Requires=services-network.service var-mnt-wd_blue_1tb.mount
-
-          [Container]
-          Image=docker.io/gtstef/filebrowser:latest
-          ContainerName=filebrowser
-          Network=services.network
-          PublishPort=10.0.0.1:8080:80
-          PodmanArgs=--user 0:0
-
-          Volume=/var/home/core/filebrowser:/home/filebrowser/data:Z
-          Volume=/var/mnt/wd_blue_1tb:/wd_blue_1tb:Z
-          Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
-
-          [Service]
-          Restart=always
-
-          [Install]
-          WantedBy=default.target
+        local: quadlets/filebrowser.container
 systemd:
   units:
     # Mount data
