@@ -34,3 +34,6 @@ jobs:
           file: ./Containerfile
           push: true
           tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
+          provenance: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
