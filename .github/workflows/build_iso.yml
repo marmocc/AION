@@ -24,6 +24,7 @@ jobs:
         with:
           config-file: ./iso-config.toml
           image: ghcr.io/${{ env.LOWERCASE_REPOSITORY }}:latest
+          rootfs: ext4
           types: |
             iso
       
