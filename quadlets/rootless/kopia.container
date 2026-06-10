@@ -1,0 +1,28 @@
+[Unit]
+Description=Kopia Server
+After=network-online.target services-network.service var-mnt-wd_blue_1tb.mount
+Requires=services-network.service var-mnt-wd_blue_1tb.mount
+
+[Container]
+Image=docker.io/kopia/kopia:latest
+ContainerName=kopia
+Network=services.network
+PublishPort=10.0.0.1:51515:51515
+
+Volume=/var/mnt/wd_blue_1tb/kopia:/repository:Z
+Environment=KOPIA_SERVER_USERNAME=marmocc
+Secret=kopia_server_password,type=env,target=KOPIA_SERVER_PASSWORD
+
+Volume=/var/home/core/AION.crt:/tls/AION.crt:ro,Z
+Secret=aion_tls_key,type=mount,target=/tls/AION.key
+
+Exec=server start \
+    --tls-cert-file=/tls/AION.crt \
+    --tls-key-file=/tls/AION.key \
+    --address=0.0.0.0:51515
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
