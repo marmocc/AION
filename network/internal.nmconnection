@@ -1,0 +1,9 @@
+[connection]
+id=internal
+type=ethernet
+interface-name=enp3s0
+[ipv4]
+method=manual
+addresses=10.0.0.1/30
+[ipv6]
+method=disabled

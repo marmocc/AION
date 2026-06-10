@@ -1,0 +1,21 @@
+[Unit]
+Description=FileBrowser Quantum
+After=network-online.target services-network.service var-mnt-wd_blue_1tb.mount
+Requires=services-network.service var-mnt-wd_blue_1tb.mount
+
+[Container]
+Image=docker.io/gtstef/filebrowser:latest
+ContainerName=filebrowser
+Network=services.network
+PublishPort=10.0.0.1:8080:80
+PodmanArgs=--user 0:0
+
+Volume=/var/home/core/filebrowser:/home/filebrowser/data:Z
+Volume=/var/mnt/wd_blue_1tb:/wd_blue_1tb:Z
+Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
