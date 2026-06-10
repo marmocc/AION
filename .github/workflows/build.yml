@@ -1,0 +1,80 @@
+name: "Compile Ignition and Generate ISO"
+
+on:
+  push:
+    branches: [ "master" ]
+    paths: [ "config.bu" ]
+  workflow_dispatch:
+
+env:
+  TARGET_DISK: "/dev/disk/by-id/ata-TS120GSSD220S_G290265953"
+
+jobs:
+  compile-ignition:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Transpile Butane to Ignition
+        run: |
+          docker run --interactive --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/butane:release \
+            --pretty --strict \
+            --files-dir /data \
+            config.bu > config.ign
+
+      - name: Upload Ignition Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: config.ign
+          archive: false
+          retention-days: 90
+  generate-iso:
+    runs-on: ubuntu-latest
+    needs: compile-ignition
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Latest Compiled Ignition
+        uses: actions/download-artifact@v8
+        with:
+          name: config.ign
+          path: .
+
+      - name: Verify Ignition File Presence
+        run: |
+          if [ ! -f "config.ign" ]; then
+            echo "Error: config.ign not found. Run the Ignition compiler workflow first!"
+            exit 1
+          fi
+
+      - name: Fetch Fedora CoreOS Base
+        run: |
+          docker run --privileged --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/coreos-installer:release \
+            download -s stable -p metal -f iso
+          mv fedora-coreos-*.iso image-base.iso
+
+      - name: Embed Ignition into Base
+        run: |
+          docker run --privileged --rm \
+            -v ${{ github.workspace }}:/data -w /data \
+            quay.io/coreos/coreos-installer:release \
+            iso customize \
+            --dest-device "${{ env.TARGET_DISK }}" \
+            --dest-ignition config.ign \
+            image-base.iso \
+            -o image.iso
+          sudo chown $(id -u):$(id -g) image.iso
+
+      - name: Upload ISO Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: image.iso
+          archive: false
+          retention-days: 3
