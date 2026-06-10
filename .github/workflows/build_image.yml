@@ -1,8 +1,8 @@
-name: Build and Push Image
+name: Build Image
 
 on:
   push:
-    branches: [ "bootc" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
