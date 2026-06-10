@@ -1,5 +1,5 @@
-[customizations.image]
-rootfs = "ext4"
+[image]
+filesystem = "ext4"
 
 [customizations.installer.kickstart]
 contents = """
