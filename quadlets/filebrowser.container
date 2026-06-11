@@ -10,7 +10,7 @@ Network=services.network
 PublishPort=10.0.0.1:8080:80
 PodmanArgs=--user 0:0
 
-Volume=/var/home/core/filebrowser:/home/filebrowser/data:Z
+Volume=filebrowser:/home/filebrowser/data:Z
 Volume=/var/mnt/wd_blue_1tb:/wd_blue_1tb:Z
 Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
 

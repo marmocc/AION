@@ -8,7 +8,7 @@ Image=docker.io/henrygd/beszel:latest
 ContainerName=beszel
 Network=services.network
 
-Volume=/var/home/core/beszel:/beszel_data:Z
+Volume=beszel:/beszel_data:Z
 Environment=USER_EMAIL=marmocc@marmo.cc
 Secret=beszel_admin_password,type=env,target=USER_PASSWORD
 
