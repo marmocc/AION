@@ -9,6 +9,7 @@ ContainerName=kopia
 Network=services.network
 PublishPort=10.0.0.1:51515:51515
 
+Volume=/var/home/core/kopia:/app:Z
 Volume=/var/mnt/wd_blue_1tb/kopia:/repository:Z
 Environment=KOPIA_SERVER_USERNAME=marmocc
 Secret=kopia_server_password,type=env,target=KOPIA_SERVER_PASSWORD
