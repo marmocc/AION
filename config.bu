@@ -106,6 +106,14 @@ storage:
       overwrite: true
       contents:
         local: quadlets/filebrowser.container
+    # Configure rootless container for Libre WebUI
+    - path: /var/home/core/.config/containers/systemd/librewebui.container
+      mode: 0644
+      user: { name: core }
+      group: { name: core }
+      overwrite: true
+      contents:
+        local: quadlets/librewebui.container
 systemd:
   units:
     # Mount data
