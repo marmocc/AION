@@ -7,11 +7,13 @@ Requires=services-network.service
 Image=docker.io/cloudflare/cloudflared:latest
 ContainerName=cloudflared
 Network=services.network
+
 Secret=cloudflared_tunnel_token,type=env,target=TUNNEL_TOKEN
 Exec=tunnel --no-autoupdate --metrics=0.0.0.0:2000 run
 
 [Service]
 Restart=always
+RestartSec=10s
 
 [Install]
 WantedBy=default.target

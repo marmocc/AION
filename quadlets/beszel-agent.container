@@ -13,6 +13,7 @@ Secret=beszel_agent_ssh_key,type=env,target=KEY
 
 [Service]
 Restart=always
+RestartSec=10s
 
 [Install]
 WantedBy=multi-user.target

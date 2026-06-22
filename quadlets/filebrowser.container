@@ -7,15 +7,16 @@ Requires=services-network.service var-mnt-wd_blue_1tb.mount
 Image=docker.io/gtstef/filebrowser:latest
 ContainerName=filebrowser
 Network=services.network
-PublishPort=10.0.0.1:8080:80
-PodmanArgs=--user 0:0
 
+PodmanArgs=--user 0:0
+PublishPort=10.0.0.1:8080:80
 Volume=filebrowser:/home/filebrowser/data:Z
-Volume=/var/mnt/wd_blue_1tb:/wd_blue_1tb:Z
+Volume=/var/mnt/wd_blue_1tb/files:/wd_blue_1tb:Z
 Secret=filebrowser_admin_password,type=env,target=FILEBROWSER_ADMIN_PASSWORD
 
 [Service]
 Restart=always
+RestartSec=10s
 
 [Install]
 WantedBy=default.target
