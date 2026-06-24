@@ -8,6 +8,7 @@ Image=docker.io/machines/filestash:latest
 ContainerName=filestash
 Network=services.network
 
+Volume=/var/home/core/filestash:/app/data/state:Z
 Secret=filestash_password,type=env,target=ADMIN_PASSWORD
 
 [Service]
