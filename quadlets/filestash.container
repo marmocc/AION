@@ -1,0 +1,18 @@
+[Unit]
+Description=Filestash
+After=network-online.target services-network.service
+Requires=services-network.service
+
+[Container]
+Image=docker.io/machines/filestash:latest
+ContainerName=filestash
+Network=services.network
+
+Secret=filestash_password,type=env,target=ADMIN_PASSWORD
+
+[Service]
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=default.target

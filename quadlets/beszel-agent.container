@@ -5,11 +5,12 @@ After=network-online.target
 [Container]
 Image=docker.io/henrygd/beszel-agent:alpine
 ContainerName=beszel-agent
-PodmanArgs=--pid=host --privileged
 Network=host
+
+PodmanArgs=--pid=host --privileged
 SecurityLabelDisable=true
 Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
-Secret=beszel_agent_ssh_key,type=env,target=KEY
+Secret=beszel_ssh_key,type=env,target=KEY
 
 [Service]
 Restart=always

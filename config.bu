@@ -5,11 +5,14 @@ passwd:
     # Set SSH key for default core user
     - name: core
       ssh_authorized_keys:
-        - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ5mcen2vcOenfR6CUmHu3h+zrV4573xJMo0NMKcfXHD"
+        - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgdSqPX/ytQO+aMCPlUMciHLeVHqWxASkMeYO0nBsfe"
+    - name: marmocc
+      ssh_authorized_keys:
+        - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqh6I0SmpVtiFYXxouabQdLYdZl6ShFJbFV3eFLtJNm"
 storage:
   directories:
     # Prepare permissions for mount
-    - path: /var/mnt/wd_blue_1tb
+    - path: /var/mnt/disk1
       mode: 0755
     # Prepare permission for core config
     - path: /var/home/core/.config
@@ -35,6 +38,11 @@ storage:
       user: { name: core }
       group: { name: core }
     - path: /var/home/core/.config/systemd/user/sockets.target.wants
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
+    # Prepare permission for Beszel data
+    - path: /var/home/core/beszel
       mode: 0755
       user: { name: core }
       group: { name: core }
@@ -64,7 +72,7 @@ storage:
       contents:
         inline: |
           # Path            Mode User Group Age Argument
-          d /var/mnt/wd_blue_1tb  0755 core core - -
+          d /var/mnt/disk1  0755 core core - -
     # Configure rootless internal container network
     - path: /var/home/core/.config/containers/systemd/services.network
       mode: 0644
@@ -74,7 +82,7 @@ storage:
       contents:
         inline: |
           [Network]
-          NetworkName=services-bridge
+          NetworkName=services
           Driver=bridge
     # Configure rootless container for Cloudflare Tunnel
     - path: /var/home/core/.config/containers/systemd/cloudflared.container
@@ -98,28 +106,28 @@ storage:
       overwrite: true
       contents:
         local: quadlets/beszel-agent.container
-    # Configure rootless container for FileBrowser Quantum
-    - path: /var/home/core/.config/containers/systemd/filebrowser.container
+    # Configure rootless container for Filestash
+    - path: /var/home/core/.config/containers/systemd/filestash.container
       mode: 0644
       user: { name: core }
       group: { name: core }
       overwrite: true
       contents:
-        local: quadlets/filebrowser.container
+        local: quadlets/filestash.container
 systemd:
   units:
     # Mount data
-    - name: var-mnt-wd_blue_1tb.mount
+    - name: var-mnt-disk1.mount
       enabled: true
       contents: |
         [Unit]
-        Description=Mount wd_blue_1tb
+        Description=Mount disk1
         Before=local-fs.target
 
         [Mount]
-        What=UUID=0047719d-a4a3-4455-a7fa-a697f7daab8c
-        Where=/var/mnt/wd_blue_1tb
-        Type=btrfs
+        What=LABEL=disk1
+        Where=/var/mnt/disk1
+        Type=ext4
         Options=defaults,x-systemd.device-timeout=30s
 
         [Install]
