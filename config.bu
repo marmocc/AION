@@ -9,10 +9,12 @@ passwd:
     - name: marmocc
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqh6I0SmpVtiFYXxouabQdLYdZl6ShFJbFV3eFLtJNm"
+      home_dir: /var/mnt/data/marmocc
+      shell: /sbin/nologin
 storage:
   directories:
     # Prepare permissions for mount
-    - path: /var/mnt/disk1
+    - path: /var/mnt/data
       mode: 0755
     # Prepare permission for core config
     - path: /var/home/core/.config
@@ -72,7 +74,31 @@ storage:
       contents:
         inline: |
           # Path            Mode User Group Age Argument
-          d /var/mnt/disk1  0755 core core - -
+          d /var/mnt/data  0755 core core - -
+    # Configure OpenSSH server for SFTP
+    - path: /etc/ssh/sshd_config.d/02-sftp-chroot.conf
+      mode: 0600
+      contents:
+        inline: |
+          # SFTP subsystem with chroot
+          Subsystem sftp internal-sftp -f AUTHPRIV -l VERBOSE
+          
+          # Shell access only for core user
+          Match User core
+              PermitTTY yes
+              X11Forwarding no
+              AllowAgentForwarding no
+              AllowTcpForwarding no
+          
+          # SFTP-only users with chroot jail
+          Match User !core
+              ChrootDirectory %h
+              PermitTTY no
+              X11Forwarding no
+              AllowAgentForwarding no
+              AllowTcpForwarding no
+              PermitUserEnvironment no
+              ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
     # Configure rootless internal container network
     - path: /var/home/core/.config/containers/systemd/services.network
       mode: 0644
@@ -117,16 +143,16 @@ storage:
 systemd:
   units:
     # Mount data
-    - name: var-mnt-disk1.mount
+    - name: var-mnt-data.mount
       enabled: true
       contents: |
         [Unit]
-        Description=Mount disk1
+        Description=Mount data
         Before=local-fs.target
 
         [Mount]
-        What=LABEL=disk1
-        Where=/var/mnt/disk1
+        What=LABEL=DISK1
+        Where=/var/mnt/data
         Type=ext4
         Options=defaults,x-systemd.device-timeout=30s
 
