@@ -1,5 +1,5 @@
 variant: fcos
-version: 1.8.0-experimental
+version: 1.7.0
 passwd:
   users:
     # Set SSH key for default core user
@@ -55,32 +55,32 @@ storage:
       mode: 0600
       contents:
         local: configs/02-sftp-chroot.conf
+    # Configure Quadlets
+    - path: /etc/containers/systemd/users/services.network
+      mode: 0644
+      contents:
+        local: quadlets/services.network
+    - path: /etc/containers/systemd/users/cloudflared.container
+      mode: 0644
+      contents:
+        local: quadlets/cloudflared.container
+    - path: /etc/containers/systemd/users/beszel.container
+      mode: 0644
+      contents:
+        local: quadlets/beszel.container
+    - path: /etc/containers/systemd/users/filestash.container
+      mode: 0644
+      contents:
+        local: quadlets/filestash.container
+    - path: /etc/containers/systemd/beszel-agent.container
+      mode: 0644
+      contents:
+        local: quadlets/beszel-agent.container
+    - path: /etc/containers/systemd/kopia.container
+      mode: 0644
+      contents:
+        local: quadlets/kopia.container
 systemd:
-  quadlets:
-    # Configure rootless internal container network
-    - name: services.network
-      rootful: false
-      contents_local: quadlets/services.network
-    # Configure rootless container for Cloudflare Tunnel
-    - name: cloudflared.container
-      rootful: false
-      contents_local: quadlets/cloudflared.container
-    # Configure rootless container for Beszel
-    - name: beszel.container
-      rootful: false
-      contents_local: quadlets/beszel.container
-    # Configure rootless container for Filestash
-    - name: filestash.container
-      rootful: false
-      contents_local: quadlets/filestash.container
-    # Configure rootful container for Beszel Agent
-    - name: beszel-agent.container
-      rootful: true
-      contents_local: quadlets/beszel-agent.container
-    # Configure rootful container for Kopia
-    - name: kopia.container
-      rootful: true
-      contents_local: quadlets/kopia.container
   units:
     # Schedule backup with Kopia
     - name: kopia.timer

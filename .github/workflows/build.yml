@@ -19,7 +19,7 @@ jobs:
         run: |
           docker run --interactive --rm \
             -v ${{ github.workspace }}:/data -w /data \
-            quay.io/coreos/butane:latest \
+            quay.io/coreos/butane:release \
             --pretty --strict \
             --files-dir /data \
             config.bu > config.ign
@@ -55,7 +55,7 @@ jobs:
         run: |
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/data -w /data \
-            quay.io/coreos/coreos-installer:latest \
+            quay.io/coreos/coreos-installer:release \
             download -s stable -p metal -f iso
           mv fedora-coreos-*.iso image-base.iso
 
@@ -63,7 +63,7 @@ jobs:
         run: |
           docker run --privileged --rm \
             -v ${{ github.workspace }}:/data -w /data \
-            quay.io/coreos/coreos-installer:latest \
+            quay.io/coreos/coreos-installer:release \
             iso customize \
             --network-keyfile /data/network/internal.nmconnection \
             --network-keyfile /data/network/external.nmconnection \
