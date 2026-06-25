@@ -6,6 +6,7 @@ passwd:
     - name: core
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgdSqPX/ytQO+aMCPlUMciHLeVHqWxASkMeYO0nBsfe"
+    # Set SSH key for SFTP marmocc user
     - name: marmocc
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqh6I0SmpVtiFYXxouabQdLYdZl6ShFJbFV3eFLtJNm"
@@ -145,6 +146,12 @@ storage:
       overwrite: true
       contents:
         local: quadlets/filestash.container
+    # Configure rootful container for Kopia
+    - path: /etc/containers/systemd/kopia.container
+      mode: 0644
+      overwrite: true
+      contents:
+        local: quadlets/kopia.container
 systemd:
   units:
     # Mount data

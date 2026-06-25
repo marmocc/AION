@@ -9,7 +9,6 @@ Network=host
 
 PodmanArgs=--pid=host --privileged
 SecurityLabelDisable=true
-Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
 Secret=beszel_ssh_key,type=env,target=KEY
 
 [Service]
