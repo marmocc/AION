@@ -49,6 +49,18 @@ storage:
     # Enable linger for default core user
     - path: /var/lib/systemd/linger/core
       mode: 0644
+    # Configure OpenSSH server for SFTP
+    - path: /etc/ssh/sshd_config.d/02-sftponly.conf
+      mode: 0600
+      contents:
+        inline: |
+          Match Group sftponly
+            ChrootDirectory /var/mnt/data
+            PermitTTY no
+            X11Forwarding no
+            AllowAgentForwarding no
+            AllowTcpForwarding no
+            ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE -d /%u
     # Configure rootless Quadlets
     - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
