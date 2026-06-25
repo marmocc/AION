@@ -1,5 +1,5 @@
 variant: fcos
-version: 1.6.0
+version: v1.8.0-experimental
 passwd:
   users:
     # Set SSH key for default core user
@@ -13,43 +13,19 @@ passwd:
       home_dir: /var/mnt/data/marmocc
       shell: /sbin/nologin
 storage:
-  directories:
-    # Prepare permissions for mount
+  filesystems:
     - path: /var/mnt/data
-      mode: 0755
-    # Prepare permission for core config
-    - path: /var/home/core/.config
-      mode: 0755
-      user: { name: core }
-      group: { name: core }
-    # Prepare permissions for core containers
-    - path: /var/home/core/.config/containers
-      mode: 0755
-      user: { name: core }
-      group: { name: core }
-    - path: /var/home/core/.config/containers/systemd
-      mode: 0755
-      user: { name: core }
-      group: { name: core }
-    # Prepare permission for core units
-    - path: /var/home/core/.config/systemd
-      mode: 0755
-      user: { name: core }
-      group: { name: core }
-    - path: /var/home/core/.config/systemd/user
-      mode: 0755
-      user: { name: core }
-      group: { name: core }
-    - path: /var/home/core/.config/systemd/user/sockets.target.wants
-      mode: 0755
-      user: { name: core }
-      group: { name: core }
-    # Prepare permission for Beszel data
+      device: /dev/disk/by-label/DISK1
+      format: ext4
+      wipe_filesystem: false
+      with_mount_unit: true
+  directories:
+    # Prepare directory for Beszel data
     - path: /var/home/core/beszel
       mode: 0755
       user: { name: core }
       group: { name: core }
-    # Prepare permission for Filestash data
+    # Prepare directory for Filestash data
     - path: /var/home/core/filestash
       mode: 0755
       user: { name: core }
@@ -59,18 +35,13 @@ storage:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Rome
       overwrite: true
-    # Enable core's podman socket
-    - path: /var/home/core/.config/systemd/user/sockets.target.wants/podman.socket
-      target: /usr/lib/systemd/user/podman.socket
-      user: { name: core }
-      group: { name: core }
   files:
     # Set the hostname
     - path: /etc/hostname
       mode: 0644
       overwrite: true
       contents:
-        local: config/hostname
+        local: configs/hostname
     # Enable linger for default core user
     - path: /var/lib/systemd/linger/core
       mode: 0644
@@ -78,63 +49,40 @@ storage:
     - path: /etc/tmpfiles.d/fix-mount-permissions.conf
       mode: 0644
       contents:
-        local: config/fix-mount-permissions.conf
+        local: configs/fix-mount-permissions.conf
     # Configure OpenSSH server for SFTP
     - path: /etc/ssh/sshd_config.d/02-sftp-chroot.conf
       mode: 0600
       contents:
-        local: config/02-sftp-chroot.conf
-    # Configure rootless internal container network
-    - path: /var/home/core/.config/containers/systemd/services.network
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        local: quadlets/services.network
-    # Configure rootless container for Cloudflare Tunnel
-    - path: /var/home/core/.config/containers/systemd/cloudflared.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        local: quadlets/cloudflared.container
-    # Configure rootless container for Beszel
-    - path: /var/home/core/.config/containers/systemd/beszel.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        local: quadlets/beszel.container
-    # Configure rootful container for Beszel Agent
-    - path: /etc/containers/systemd/beszel-agent.container
-      mode: 0644
-      overwrite: true
-      contents:
-        local: quadlets/beszel-agent.container
-    # Configure rootless container for Filestash
-    - path: /var/home/core/.config/containers/systemd/filestash.container
-      mode: 0644
-      user: { name: core }
-      group: { name: core }
-      overwrite: true
-      contents:
-        local: quadlets/filestash.container
-    # Configure rootful container for Kopia
-    - path: /etc/containers/systemd/kopia.container
-      mode: 0644
-      overwrite: true
-      contents:
-        local: quadlets/kopia.container
+        local: configs/02-sftp-chroot.conf
 systemd:
+  quadlets:
+    # Configure rootless internal container network
+    - name: services.network
+      rootful: false
+      contents_local: quadlets/services.network
+    # Configure rootless container for Cloudflare Tunnel
+    - name: cloudflared.container
+      rootful: false
+      contents_local: quadlets/cloudflared.container
+    # Configure rootless container for Beszel
+    - name: beszel.container
+      rootful: false
+      contents_local: quadlets/beszel.container
+    # Configure rootless container for Filestash
+    - name: filestash.container
+      rootful: false
+      contents_local: quadlets/filestash.container
+    # Configure rootful container for Beszel Agent
+    - name: beszel-agent.container
+      rootful: true
+      contents_local: quadlets/beszel-agent.container
+    # Configure rootful container for Kopia
+    - name: kopia.container
+      rootful: true
+      contents_local: quadlets/kopia.container
   units:
-    # Mount data
-    - name: var-mnt-data.mount
-      enabled: true
-      contents_local: units/var-mnt-data.mount
-    # Execute backup
+    # Schedule backup with Kopia
     - name: kopia.timer
       enabled: true
       contents_local: units/kopia.timer
