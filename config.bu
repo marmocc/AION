@@ -41,37 +41,52 @@ storage:
       mode: 0644
       overwrite: true
       contents:
-        local: configs/hostname
+        inline: AION
     # Enable linger for default core user
     - path: /var/lib/systemd/linger/core
       mode: 0644
-    # Fix mount permissions
-    - path: /etc/tmpfiles.d/fix-mount-permissions.conf
-      mode: 0644
-      contents:
-        local: configs/fix-mount-permissions.conf
     # Configure OpenSSH server for SFTP
     - path: /etc/ssh/sshd_config.d/02-sftp-chroot.conf
       mode: 0600
       contents:
-        local: configs/02-sftp-chroot.conf
-    # Configure Quadlets
-    - path: /etc/containers/systemd/users/services.network
+        inline: |
+          # SFTP subsystem with chroot
+          Subsystem sftp internal-sftp -f AUTHPRIV -l VERBOSE
+
+          # Shell access only for core user
+          Match User core
+              PermitTTY yes
+              X11Forwarding no
+              AllowAgentForwarding no
+              AllowTcpForwarding no
+
+          # SFTP-only users with chroot jail
+          Match User !core
+              ChrootDirectory %h
+              PermitTTY no
+              X11Forwarding no
+              AllowAgentForwarding no
+              AllowTcpForwarding no
+              PermitUserEnvironment no
+              ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
+    # Configure rootless Quadlets
+    - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
       contents:
         local: quadlets/services.network
-    - path: /etc/containers/systemd/users/cloudflared.container
+    - path: /etc/containers/systemd/users/1000/cloudflared.container
       mode: 0644
       contents:
         local: quadlets/cloudflared.container
-    - path: /etc/containers/systemd/users/beszel.container
+    - path: /etc/containers/systemd/users/1000/beszel.container
       mode: 0644
       contents:
         local: quadlets/beszel.container
-    - path: /etc/containers/systemd/users/filestash.container
+    - path: /etc/containers/systemd/users/1000/filestash.container
       mode: 0644
       contents:
         local: quadlets/filestash.container
+    # Configure rootful Quadlets
     - path: /etc/containers/systemd/beszel-agent.container
       mode: 0644
       contents:
@@ -85,4 +100,17 @@ systemd:
     # Schedule backup with Kopia
     - name: kopia.timer
       enabled: true
-      contents_local: units/kopia.timer
+      contents:
+        inline: |
+          [Unit]
+          Description=Daily Kopia Backup
+          Requires=kopia.service
+
+          [Timer]
+          OnCalendar=daily
+          OnCalendar=*-*-* 02:00:00
+          AccuracySec=1m
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
