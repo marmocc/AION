@@ -1,8 +1,6 @@
 variant: fcos
 version: 1.7.0
 passwd:
-  groups:
-    - name: sftponly
   users:
     # Set SSH key for default core user
     - name: core
@@ -12,8 +10,6 @@ passwd:
     - name: marmocc
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqh6I0SmpVtiFYXxouabQdLYdZl6ShFJbFV3eFLtJNm"
-      groups: 
-        - sftponly
       home_dir: /var/mnt/data/marmocc
       shell: /sbin/nologin
 storage:
@@ -54,7 +50,7 @@ storage:
       mode: 0600
       contents:
         inline: |
-          Match Group sftponly
+          Match User !core,*
             ChrootDirectory /var/mnt/data
             PermitTTY no
             X11Forwarding no
