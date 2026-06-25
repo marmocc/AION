@@ -100,17 +100,16 @@ systemd:
     # Schedule backup with Kopia
     - name: kopia.timer
       enabled: true
-      contents:
-        inline: |
-          [Unit]
-          Description=Daily Kopia Backup
-          Requires=kopia.service
+      contents: |
+        [Unit]
+        Description=Daily Kopia Backup
+        Requires=kopia.service
 
-          [Timer]
-          OnCalendar=daily
-          OnCalendar=*-*-* 02:00:00
-          AccuracySec=1m
-          Persistent=true
+        [Timer]
+        OnCalendar=daily
+        OnCalendar=*-*-* 02:00:00
+        AccuracySec=1m
+        Persistent=true
 
-          [Install]
-          WantedBy=timers.target
+        [Install]
+        WantedBy=timers.target
