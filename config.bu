@@ -1,6 +1,8 @@
 variant: fcos
 version: 1.7.0
 passwd:
+  groups:
+    - name: sftponly
   users:
     # Set SSH key for default core user
     - name: core
@@ -10,6 +12,8 @@ passwd:
     - name: marmocc
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqh6I0SmpVtiFYXxouabQdLYdZl6ShFJbFV3eFLtJNm"
+      groups: 
+        - sftponly
       home_dir: /var/mnt/data/marmocc
       shell: /sbin/nologin
 storage:
@@ -46,28 +50,18 @@ storage:
     - path: /var/lib/systemd/linger/core
       mode: 0644
     # Configure OpenSSH server for SFTP
-    - path: /etc/ssh/sshd_config.d/02-sftp-chroot.conf
+    - path: /etc/ssh/sshd_config.d/02-sftponly.conf
       mode: 0600
       contents:
         inline: |
-          # SFTP subsystem with chroot
-          Subsystem sftp internal-sftp -f AUTHPRIV -l VERBOSE
-
-          # SFTP-only users with chroot jail
-          Match User *,!core
-              ChrootDirectory %h
-              PermitTTY no
-              X11Forwarding no
-              AllowAgentForwarding no
-              AllowTcpForwarding no
-              PermitUserEnvironment no
-              ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
-
-          Match User core
-              PermitTTY yes
-              X11Forwarding no
-              AllowAgentForwarding no
-              AllowTcpForwarding no
+          Match Group sftponly
+            ChrootDirectory %h
+            PermitTTY no
+            X11Forwarding no
+            AllowAgentForwarding no
+            AllowTcpForwarding no
+            PermitUserEnvironment no
+            ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
     # Configure rootless Quadlets
     - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
