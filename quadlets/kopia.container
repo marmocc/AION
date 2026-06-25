@@ -10,5 +10,6 @@ Network=host
 
 Volume=/var/mnt/data:/data:ro
 Volume=/var/mnt/data/.kopia-backups:/repo
+Secret=kopia_password,type=env,target=KOPIA_PASSWORD
 
 Exec=kopia repository connect filesystem --path /repo && kopia snapshot create /data
