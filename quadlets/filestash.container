@@ -1,5 +1,5 @@
 [Unit]
-Description=Filestash
+Description=Filestash Client
 After=network-online.target services-network.service
 Requires=services-network.service
 

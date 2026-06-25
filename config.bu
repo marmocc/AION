@@ -48,6 +48,11 @@ storage:
       mode: 0755
       user: { name: core }
       group: { name: core }
+    # Prepare permission for Filestash data
+    - path: /var/home/core/filestash
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
   links:
     # Set the local timezone
     - path: /etc/localtime
