@@ -70,7 +70,7 @@ storage:
       mode: 0644
       overwrite: true
       contents:
-        inline: AION
+        local: config/hostname
     # Enable linger for default core user
     - path: /var/lib/systemd/linger/core
       mode: 0644
@@ -78,33 +78,12 @@ storage:
     - path: /etc/tmpfiles.d/fix-mount-permissions.conf
       mode: 0644
       contents:
-        inline: |
-          # Path            Mode User Group Age Argument
-          d /var/mnt/data  0755 core core - -
+        local: config/fix-mount-permissions.conf
     # Configure OpenSSH server for SFTP
     - path: /etc/ssh/sshd_config.d/02-sftp-chroot.conf
       mode: 0600
       contents:
-        inline: |
-          # SFTP subsystem with chroot
-          Subsystem sftp internal-sftp -f AUTHPRIV -l VERBOSE
-          
-          # Shell access only for core user
-          Match User core
-              PermitTTY yes
-              X11Forwarding no
-              AllowAgentForwarding no
-              AllowTcpForwarding no
-          
-          # SFTP-only users with chroot jail
-          Match User !core
-              ChrootDirectory %h
-              PermitTTY no
-              X11Forwarding no
-              AllowAgentForwarding no
-              AllowTcpForwarding no
-              PermitUserEnvironment no
-              ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
+        local: config/02-sftp-chroot.conf
     # Configure rootless internal container network
     - path: /var/home/core/.config/containers/systemd/services.network
       mode: 0644
@@ -112,10 +91,7 @@ storage:
       group: { name: core }
       overwrite: true
       contents:
-        inline: |
-          [Network]
-          NetworkName=services
-          Driver=bridge
+        local: quadlets/services.network
     # Configure rootless container for Cloudflare Tunnel
     - path: /var/home/core/.config/containers/systemd/cloudflared.container
       mode: 0644
@@ -157,32 +133,10 @@ systemd:
     # Mount data
     - name: var-mnt-data.mount
       enabled: true
-      contents: |
-        [Unit]
-        Description=Mount data
-        Before=local-fs.target
-
-        [Mount]
-        What=LABEL=DISK1
-        Where=/var/mnt/data
-        Type=ext4
-        Options=defaults,x-systemd.device-timeout=30s
-
-        [Install]
-        WantedBy=multi-user.target
+      contents:
+        local: units/var-mnt-data.mount
     # Execute backup
     - name: kopia.timer
       enabled: true
-      contents: |
-        [Unit]
-        Description=Daily Kopia Backup
-        Requires=kopia.service
-
-        [Timer]
-        OnCalendar=daily
-        OnCalendar=*-*-* 02:00:00
-        AccuracySec=1m
-        Persistent=true
-
-        [Install]
-        WantedBy=timers.target
+      contents:
+        local: units/kopia.timer

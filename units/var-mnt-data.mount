@@ -1,0 +1,12 @@
+[Unit]
+Description=Mount data
+Before=local-fs.target
+
+[Mount]
+What=LABEL=DISK1
+Where=/var/mnt/data
+Type=ext4
+Options=defaults,x-systemd.device-timeout=30s
+
+[Install]
+WantedBy=multi-user.target
