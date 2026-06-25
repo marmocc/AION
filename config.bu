@@ -133,10 +133,8 @@ systemd:
     # Mount data
     - name: var-mnt-data.mount
       enabled: true
-      contents:
-        local: units/var-mnt-data.mount
+      contents_local: units/var-mnt-data.mount
     # Execute backup
     - name: kopia.timer
       enabled: true
-      contents:
-        local: units/kopia.timer
+      contents_local: units/kopia.timer
