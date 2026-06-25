@@ -5,7 +5,7 @@
 ssh core@AION
 ```
 
-## 2. Create user directories and set permissions
+## 2. Create SFTP user dirs and set permissions
 ```bash
 sudo mkdir -p /var/mnt/data/marmocc
 sudo chown marmocc:marmocc /var/mnt/data/marmocc
