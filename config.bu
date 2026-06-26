@@ -59,11 +59,6 @@ storage:
       mode: 0644
       contents:
         local: quadlets/filestash.container
-    # Configure rootful Quadlets
-    - path: /etc/containers/systemd/kopia.container
-      mode: 0644
-      contents:
-        local: quadlets/kopia.container
 systemd:
   units:
     # Schedule backup with Kopia

@@ -8,6 +8,7 @@ Image=docker.io/machines/filestash:latest
 ContainerName=filestash
 Network=services.network
 
+Volume=/var/mnt/data/.filestash:/app/data/state:Z
 EnvironmentFile=/var/mnt/data/.secrets
 
 [Service]
