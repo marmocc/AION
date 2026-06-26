@@ -9,7 +9,7 @@ ContainerName=kopia
 Network=host
 
 Volume=/var/mnt/data:/data:ro
-Volume=/var/mnt/data/.kopia-backups:/repo
-Secret=kopia_password,type=env,target=KOPIA_PASSWORD
+Volume=/var/mnt/data/.backups:/repo
+EnvironmentFile=/var/mnt/data/.secrets
 
 Exec=kopia repository connect filesystem --path /repo && kopia snapshot create /data
