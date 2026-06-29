@@ -65,8 +65,8 @@ jobs:
             -v ${{ github.workspace }}:/data -w /data \
             quay.io/coreos/coreos-installer:release \
             iso customize \
-            --network-keyfile /data/network/internal.nmconnection \
-            --network-keyfile /data/network/external.nmconnection \
+            --network-keyfile /data/assets/internal.nmconnection \
+            --network-keyfile /data/assets/external.nmconnection \
             --dest-device "${{ env.TARGET_DISK }}" \
             --dest-ignition config.ign \
             image-base.iso \

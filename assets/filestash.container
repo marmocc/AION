@@ -1,15 +1,15 @@
 [Unit]
-Description=Cloudflare Tunnel
+Description=Filestash Client
 After=network-online.target services-network.service
 Requires=services-network.service
 
 [Container]
-Image=docker.io/cloudflare/cloudflared:latest
-ContainerName=cloudflared
+Image=docker.io/machines/filestash:latest
+ContainerName=filestash
 Network=services.network
 
-EnvironmentFile=/var/mnt/data/.secrets
-Exec=tunnel --no-autoupdate --metrics=0.0.0.0:2000 run
+UserNS=keep-id
+Secret=filestash_password,type=env,target=ADMIN_PASSWORD
 
 [Service]
 Restart=always

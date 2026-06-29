@@ -53,25 +53,24 @@ storage:
     - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
       contents:
-        local: quadlets/services.network
+        local: assets/services.network
     - path: /etc/containers/systemd/users/1000/cloudflared.container
       mode: 0644
       contents:
-        local: quadlets/cloudflared.container
+        local: assets/cloudflared.container
     - path: /etc/containers/systemd/users/1000/filestash.container
       mode: 0644
       contents:
-        local: quadlets/filestash.container
+        local: assets/filestash.container
 systemd:
   units:
     - name: btrfs-snapshot.service
-      contents_local: units/btrfs-snapshot.service
+      contents_local: assets/btrfs-snapshot.service
     - name: btrfs-snapshot.timer
       enabled: true
-      contents_local: units/btrfs-snapshot.timer
+      contents_local: assets/btrfs-snapshot.timer
     - name: btrfs-scrub.service
-      contents_local: units/btrfs-scrub.service
+      contents_local: assets/btrfs-scrub.service
     - name: btrfs-scrub.timer
       enabled: true
-      contents_local: units/btrfs-scrub.timer
-    
+      contents_local: assets/btrfs-scrub.timer
