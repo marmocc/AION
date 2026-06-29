@@ -1,0 +1,8 @@
+[Unit]
+Description=BTRFS scrub of /var/mnt/data
+After=var-mnt-data.mount
+Requires=var-mnt-data.mount
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/btrfs scrub start -B /var/mnt/data

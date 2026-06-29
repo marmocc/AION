@@ -1,0 +1,10 @@
+[Unit]
+Description=BTRFS snapshots of /var/mnt/data
+After=var-mnt-data.mount
+Requires=var-mnt-data.mount
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/install -d -m 0755 /var/mnt/data/.snapshots
+ExecStart=/bin/sh -c 'btrfs subvolume snapshot -r /var/mnt/data /var/mnt/data/.snapshots/$(date +%%Y%%m%%d-%%H%%M)'
+ExecStart=/bin/sh -c 'ls -1 /var/mnt/data/.snapshots | sort -r | tail -n +49 | sed "s|^|/var/mnt/data/.snapshots/|" | xargs -r btrfs subvolume delete'

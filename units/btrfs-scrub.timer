@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly BTRFS scrub
+
+[Timer]
+OnCalendar=weekly
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

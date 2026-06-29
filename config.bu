@@ -16,7 +16,10 @@ storage:
   filesystems:
     - path: /var/mnt/data
       device: /dev/disk/by-label/DISK1
-      format: ext4
+      format: btrfs
+      mount_options:
+        - compress=zstd
+        - nofail
       wipe_filesystem: false
       with_mount_unit: true
   links:
@@ -45,7 +48,7 @@ storage:
             X11Forwarding no
             AllowAgentForwarding no
             AllowTcpForwarding no
-            ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE -d /%u
+            ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
     # Configure rootless Quadlets
     - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
@@ -61,19 +64,14 @@ storage:
         local: quadlets/filestash.container
 systemd:
   units:
-    # Schedule backup with Kopia
-    - name: kopia.timer
+    - name: btrfs-snapshot.service
+      contents_local: units/btrfs-snapshot.service
+    - name: btrfs-snapshot.timer
       enabled: true
-      contents: |
-        [Unit]
-        Description=Daily Kopia Backup
-        Requires=kopia.service
-
-        [Timer]
-        OnCalendar=daily
-        OnCalendar=*-*-* 02:00:00
-        AccuracySec=1m
-        Persistent=true
-
-        [Install]
-        WantedBy=timers.target
+      contents_local: units/btrfs-snapshot.timer
+    - name: btrfs-scrub.service
+      contents_local: units/btrfs-scrub.service
+    - name: btrfs-scrub.timer
+      enabled: true
+      contents_local: units/btrfs-scrub.timer
+    
