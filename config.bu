@@ -13,6 +13,7 @@ passwd:
       home_dir: /var/mnt/data/marmocc
       shell: /sbin/nologin
 storage:
+  # Mount BTRFS external HDD
   filesystems:
     - path: /var/mnt/data
       device: /dev/disk/by-label/DISK1
@@ -64,13 +65,15 @@ storage:
         local: assets/filestash.container
 systemd:
   units:
-    - name: btrfs-snapshot.service
-      contents_local: assets/btrfs-snapshot.service
-    - name: btrfs-snapshot.timer
-      enabled: true
-      contents_local: assets/btrfs-snapshot.timer
+    # Configure BTRFS automatic scrub
     - name: btrfs-scrub.service
       contents_local: assets/btrfs-scrub.service
     - name: btrfs-scrub.timer
       enabled: true
       contents_local: assets/btrfs-scrub.timer
+    # Configure BTRFS automatic snapshots
+    - name: btrfs-snapshot.service
+      contents_local: assets/btrfs-snapshot.service
+    - name: btrfs-snapshot.timer
+      enabled: true
+      contents_local: assets/btrfs-snapshot.timer
