@@ -10,6 +10,7 @@ Network=services.network
 
 UserNS=keep-id
 Secret=filestash_password,type=env,target=ADMIN_PASSWORD
+Mount=type=bind,source=/var/home/core/.config/filestash/config.json,target=/app/data/state/config/config.json,Z
 
 [Service]
 Restart=always

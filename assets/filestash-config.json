@@ -1,6 +1,9 @@
 {
   "general": {
-    "buffer_size": "small"
+    "name": "AION",
+    "host": "files.marmo.cc",
+    "buffer_size": "small",
+    "display_hidden": true
   },
   "features": {
     "video": {
