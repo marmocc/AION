@@ -64,6 +64,11 @@ storage:
       contents:
         local: assets/filestash-config.json
   directories:
+    # Prepare user config folder
+    - path: /var/home/core/.config
+      mode: 0755
+      user: { name: core }
+      group: { name: core }
     # Prepare Filestash config folder
     - path: /var/home/core/.config/filestash
       mode: 0755
