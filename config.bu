@@ -49,14 +49,7 @@ storage:
     - path: /etc/ssh/sshd_config.d/02-sftponly.conf
       mode: 0600
       contents:
-        inline: |
-          Match User !core,*
-            ChrootDirectory /var/mnt/data
-            PermitTTY no
-            X11Forwarding no
-            AllowAgentForwarding no
-            AllowTcpForwarding no
-            ForceCommand internal-sftp -f AUTHPRIV -l VERBOSE
+        local: assets/02-sftponly.conf
     # Configure rootless Quadlets
     - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
