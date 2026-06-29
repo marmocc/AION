@@ -13,6 +13,13 @@ passwd:
       home_dir: /var/mnt/data/marmocc
       shell: /sbin/nologin
 storage:
+  directories:
+    # Make sure mount directory exists
+    - path: /var/mnt/data
+      mode: 0755
+    # Prepare Filestash container config folder
+    - path: /var/lib/filestash/config
+      mode: 0755
   # Mount BTRFS external HDD
   filesystems:
     - path: /var/mnt/data
@@ -63,6 +70,11 @@ storage:
       mode: 0644
       contents:
         local: assets/filestash.container
+    # Configure Filestash container
+    - path: /var/lib/filestash/config/config.json
+      mode: 0644
+      contents:
+        local: assets/filestash_config.json
 systemd:
   units:
     # Configure BTRFS automatic scrub

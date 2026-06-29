@@ -1,0 +1,26 @@
+{
+  "general": {
+    "buffer_size": "small"
+  },
+  "features": {
+    "video": {
+      "enable_transcoder": false
+    }
+  },
+  "connections": [
+    {
+      "type": "sftp",
+      "label": "sftp"
+    }
+  ],
+  "middleware": {
+    "identity_provider": {
+      "type": "passthrough",
+      "params": "{\"strategy\":\"username_and_password\"}"
+    },
+    "attribute_mapping": {
+      "related_backend": "sftp",
+      "params": "{\"sftp\":{\"type\":\"sftp\",\"hostname\":\"host.containers.internal\",\"username\":\"{{ .user }}\",\"password\":\"{{ .password }}\"}}"
+    }
+  }
+}
