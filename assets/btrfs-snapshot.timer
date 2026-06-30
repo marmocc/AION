@@ -2,8 +2,8 @@
 Description=Hourly BTRFS snapshot
 
 [Timer]
-OnCalendar=hourly
-AccuracySec=5min
+OnCalendar=*-*-* 07..23:00:00
+AccuracySec=1h
 Persistent=true
 
 [Install]

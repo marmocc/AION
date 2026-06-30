@@ -6,5 +6,13 @@ Requires=var-mnt-data.mount
 [Service]
 Type=oneshot
 ExecStartPre=/usr/bin/install -d -m 0755 /var/mnt/data/.snapshots
-ExecStart=/bin/sh -c 'btrfs subvolume snapshot -r /var/mnt/data /var/mnt/data/.snapshots/$(date +%%Y%%m%%d-%%H%%M)'
-ExecStart=/bin/sh -c 'ls -1 /var/mnt/data/.snapshots | sort -r | tail -n +49 | sed "s|^|/var/mnt/data/.snapshots/|" | xargs -r btrfs subvolume delete'
+ExecStart=/bin/sh -c '\
+  cur=$(btrfs subvolume show /var/mnt/data | awk -F": *" "/^[[:space:]]*Generation:/{print \$2}"); \
+  prev=$(cat /var/mnt/data/.snapshots/.last-gen 2>/dev/null || echo 0); \
+  if [ "$cur" = "$prev" ]; then \
+    echo "No changes since last snapshot ($cur), skipping"; \
+    exit 0; \
+  fi; \
+  btrfs subvolume snapshot -r /var/mnt/data /var/mnt/data/.snapshots/$(date +%%Y%%m%%d-%%H%%M); \
+  echo "$cur" > /var/mnt/data/.snapshots/.last-gen'
+ExecStart=/bin/sh -c 'ls -1 /var/mnt/data/.snapshots | grep -E "^[0-9]{8}-[0-9]{4}$" | sort -r | tail -n +11 | sed "s|^|/var/mnt/data/.snapshots/|" | xargs -r btrfs subvolume delete'
