@@ -76,6 +76,12 @@ storage:
       group: { name: core }
 systemd:
   units:
+    # Configure SMART health checks
+    - name: smart-check.service
+      contents_local: assets/smart-check.service
+    - name: smart-check.timer
+      enabled: true
+      contents_local: assets/smart-check.timer
     # Configure BTRFS automatic scrub
     - name: btrfs-scrub.service
       contents_local: assets/btrfs-scrub.service

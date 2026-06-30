@@ -1,0 +1,17 @@
+[Unit]
+Description=SMART health check for all disks
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c '\
+  status=0; \
+  for d in ata-TS120GSSD220S_G290265953 ata-WDC_WD10EZEX-75WN4A0_WD-WCC6Y0NU26FV; do \
+    dev=$(readlink -f /dev/disk/by-id/$d); \
+    echo "=== $d ($dev) ==="; \
+    podman run --rm --privileged --device="$dev" docker.io/corfr/smartctl -a "$dev" || true; \
+    podman run --rm --privileged --device="$dev" docker.io/corfr/smartctl -H "$dev"; \
+    rc=$?; \
+    [ "$rc" -eq 0 ] || status=$rc; \
+  done; \
+  exit $status'
