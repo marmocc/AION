@@ -1,5 +1,5 @@
 [Unit]
-Description=Weekly BTRFS scrub
+Description=Monthly BTRFS scrub
 
 [Timer]
 OnCalendar=*-*-01 10:00:00
