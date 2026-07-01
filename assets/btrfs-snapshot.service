@@ -5,7 +5,7 @@ Requires=var-mnt-data.mount
 
 [Service]
 Type=oneshot
-ExecStartPre=/usr/bin/install -d -m 0755 /var/mnt/data/.snapshots
+ExecStartPre=/bin/sh -c '[ -d /var/mnt/data/.snapshots ] || btrfs subvolume create /var/mnt/data/.snapshots'
 ExecStart=/bin/sh -c '\
   cur=$(btrfs subvolume show /var/mnt/data | awk -F": *" "/^[[:space:]]*Generation:/{print \$2}"); \
   prev=$(cat /var/mnt/data/.snapshots/.last-gen 2>/dev/null || echo 0); \
