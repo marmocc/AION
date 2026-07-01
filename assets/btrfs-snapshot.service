@@ -13,7 +13,7 @@ ExecStart=/bin/sh -c '\
     echo "No changes since last snapshot ($prev), skipping"; \
     exit 0; \
   fi; \
-  cur=$(btrfs subvolume show /var/mnt/data | awk -F": *" "/^[[:space:]]*Generation:/{print \$2}"); \
+  cur=$(btrfs subvolume show /var/mnt/data | awk "/^[[:space:]]*Generation:/{print \$$NF}"); \
   btrfs subvolume snapshot -r /var/mnt/data /var/mnt/data/.snapshots/$(date +%%Y%%m%%d-%%H%%M); \
   echo "$cur" > /var/mnt/data/.snapshots/.last-gen'
 ExecStart=/bin/sh -c 'ls -1 /var/mnt/data/.snapshots | grep -E "^[0-9]{8}-[0-9]{4}$" | sort -r | tail -n +11 | sed "s|^|/var/mnt/data/.snapshots/|" | xargs -r btrfs subvolume delete'
