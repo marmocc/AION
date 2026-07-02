@@ -2,7 +2,7 @@
 Description=Weekly SMART health check
 
 [Timer]
-OnCalendar=Mon 07:00:00
+OnCalendar=weekly
 AccuracySec=1h
 Persistent=true
 
