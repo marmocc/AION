@@ -2,16 +2,14 @@ variant: fcos
 version: 1.7.0
 passwd:
   users:
-    # Set SSH key for default core user
+    # Set SSH key for default core admin
     - name: core
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgdSqPX/ytQO+aMCPlUMciHLeVHqWxASkMeYO0nBsfe"
-    # Set SSH key for SFTP marmocc user
+    # Set SSH key for marmocc user
     - name: marmocc
       ssh_authorized_keys:
         - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOqh6I0SmpVtiFYXxouabQdLYdZl6ShFJbFV3eFLtJNm"
-      home_dir: /var/mnt/data/marmocc
-      shell: /sbin/nologin
 storage:
   # Mount BTRFS external HDD
   filesystems:
@@ -38,12 +36,7 @@ storage:
     # Enable linger for default core user
     - path: /var/lib/systemd/linger/core
       mode: 0644
-    # Configure OpenSSH server for SFTP
-    - path: /etc/ssh/sshd_config.d/02-sftponly.conf
-      mode: 0600
-      contents:
-        local: assets/02-sftponly.conf
-    # Configure rootless Quadlets
+    # Configure rootless Quadlets for core user
     - path: /etc/containers/systemd/users/1000/services.network
       mode: 0644
       contents:
@@ -64,7 +57,7 @@ storage:
       contents:
         local: assets/filestash-config.json
   directories:
-    # Prepare user config folder
+    # Prepare core user config folder
     - path: /var/home/core/.config
       mode: 0755
       user: { name: core }
@@ -76,21 +69,9 @@ storage:
       group: { name: core }
 systemd:
   units:
-    # Configure SMART health checks
-    - name: smart-check.service
-      contents_local: assets/smart-check.service
-    - name: smart-check.timer
-      enabled: true
-      contents_local: assets/smart-check.timer
     # Configure BTRFS automatic scrub
     - name: btrfs-scrub.service
       contents_local: assets/btrfs-scrub.service
     - name: btrfs-scrub.timer
       enabled: true
       contents_local: assets/btrfs-scrub.timer
-    # Configure BTRFS automatic snapshots
-    - name: btrfs-snapshot.service
-      contents_local: assets/btrfs-snapshot.service
-    - name: btrfs-snapshot.timer
-      enabled: true
-      contents_local: assets/btrfs-snapshot.timer
