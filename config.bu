@@ -33,8 +33,11 @@ storage:
       overwrite: true
       contents:
         inline: AION
-    # Enable linger for default core user
+    # Enable linger for default core admin
     - path: /var/lib/systemd/linger/core
+      mode: 0644
+    # Enable linger for marmocc user
+    - path: /var/lib/systemd/linger/marmocc
       mode: 0644
     # Configure rootless Quadlets for core user
     - path: /etc/containers/systemd/users/1000/services.network
